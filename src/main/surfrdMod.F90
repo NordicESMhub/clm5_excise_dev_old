@@ -735,10 +735,10 @@ contains
     wt_lunit(begg:endg,istsoil_hi) = arrayl(begg:endg)
 !Edit by Lei Cai--end
 
-    call ncd_io(ncid=ncid, varname='PCT_NATVEG', flag='read', data=arrayl, &
-         dim1name=grlnd, readvar=readvar)
-    if (.not. readvar) call endrun( msg=' ERROR: PCT_NATVEG NOT on surfdata file'//errMsg(sourcefile, __LINE__))
-    wt_lunit(begg:endg,istsoil) = arrayl(begg:endg)
+!    call ncd_io(ncid=ncid, varname='PCT_NATVEG', flag='read', data=arrayl, &
+!         dim1name=grlnd, readvar=readvar)
+!    if (.not. readvar) call endrun( msg=' ERROR: PCT_NATVEG NOT on surfdata file'//errMsg(sourcefile, __LINE__))
+!    wt_lunit(begg:endg,istsoil) = arrayl(begg:endg)
 
     call ncd_io(ncid=ncid, varname='PCT_CROP', flag='read', data=arrayl, &
          dim1name=grlnd, readvar=readvar)
