@@ -683,7 +683,9 @@ contains
     use clm_varctl      , only : create_crop_landunit, use_fates
     use clm_varpar      , only : natpft_lb, natpft_ub, natpft_size, cft_size, cft_lb
     use clm_instur      , only : wt_lunit, wt_nat_patch, wt_cft, fert_cft
-    use landunit_varcon , only : istsoil, istcrop
+!Edit by Lei Cai--start
+    use landunit_varcon , only : istsoil, istsoil_li, istsoil_mi, istsoil_hi, istcrop
+!Edit by Lei Cai--end
     use surfrdUtilsMod  , only : convert_cft_to_pft
     !
     ! !ARGUMENTS:
@@ -710,6 +712,28 @@ contains
     ! This temporary array is needed because ncd_io expects a pointer, so we can't
     ! directly pass wt_lunit(begg:endg,istsoil)
     allocate(arrayl(begg:endg))
+
+!Edit by Lei Cai--start
+    call ncd_io(ncid=ncid, varname='PCT_NATVEG_NI', flag='read', data=arrayl, &
+         dim1name=grlnd, readvar=readvar)
+    if (.not. readvar) call endrun( msg=' ERROR: PCT_NATVEG_NI NOT on surfdata file'//errMsg(sourcefile, __LINE__))
+    wt_lunit(begg:endg,istsoil) = arrayl(begg:endg)
+
+    call ncd_io(ncid=ncid, varname='PCT_NATVEG_LI', flag='read', data=arrayl, &
+         dim1name=grlnd, readvar=readvar)
+    if (.not. readvar) call endrun( msg=' ERROR: PCT_NATVEG_LI NOT on surfdata file'//errMsg(sourcefile, __LINE__))
+    wt_lunit(begg:endg,istsoil_li) = arrayl(begg:endg)
+
+	call ncd_io(ncid=ncid, varname='PCT_NATVEG_MI', flag='read', data=arrayl, &
+         dim1name=grlnd, readvar=readvar)
+    if (.not. readvar) call endrun( msg=' ERROR: PCT_NATVEG_MI NOT on surfdata file'//errMsg(sourcefile, __LINE__))
+    wt_lunit(begg:endg,istsoil_mi) = arrayl(begg:endg)
+	
+	call ncd_io(ncid=ncid, varname='PCT_NATVEG_HI', flag='read', data=arrayl, &
+         dim1name=grlnd, readvar=readvar)
+    if (.not. readvar) call endrun( msg=' ERROR: PCT_NATVEG_HI NOT on surfdata file'//errMsg(sourcefile, __LINE__))
+    wt_lunit(begg:endg,istsoil_hi) = arrayl(begg:endg)
+!Edit by Lei Cai--end
 
     call ncd_io(ncid=ncid, varname='PCT_NATVEG', flag='read', data=arrayl, &
          dim1name=grlnd, readvar=readvar)
@@ -759,6 +783,11 @@ contains
        call check_sums_equal_1(wt_cft, begg, 'wt_cft', subname)
     end if
     wt_lunit(begg:endg,istsoil) = wt_lunit(begg:endg,istsoil) / 100._r8
+!Edit by Lei Cai--start
+    wt_lunit(begg:endg,istsoil_li) = wt_lunit(begg:endg,istsoil_li) / 100._r8
+	wt_lunit(begg:endg,istsoil_mi) = wt_lunit(begg:endg,istsoil_mi) / 100._r8
+	wt_lunit(begg:endg,istsoil_hi) = wt_lunit(begg:endg,istsoil_hi) / 100._r8
+!Edit by Lei Cai--end	
     wt_lunit(begg:endg,istcrop) = wt_lunit(begg:endg,istcrop) / 100._r8
     wt_nat_patch(begg:endg,:)   = wt_nat_patch(begg:endg,:) / 100._r8
     call check_sums_equal_1(wt_nat_patch, begg, 'wt_nat_patch', subname)

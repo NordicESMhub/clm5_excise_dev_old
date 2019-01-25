@@ -775,6 +775,10 @@ contains
      associate(                                              & 
           micro_sigma  => col%micro_sigma                  , & ! Input:  [real(r8) (:)   ] microtopography pdf sigma (m)                     
 
+!Edit by Lei Cai, from Hanna Lee--start: including micro_sigma_ex
+          micro_sigma_ex => waterstate_inst%micro_sigma_ex , & ! Input:  [real(r8) (:,:)   ]  excess soil ice
+!Edit by Lei Cai, from Hanna Lee--end
+
           h2osno       => waterstate_inst%h2osno_col       , & ! Input:  [real(r8) (:)   ] snow water (mm H2O)                               
           
           h2osoi_liq   => waterstate_inst%h2osoi_liq_col   , & ! Output: [real(r8) (:,:) ] liquid water (col,lyr) [kg/m2]                  
@@ -802,6 +806,10 @@ contains
              if (h2osfc(c) > min_h2osfc) then
                 ! a cutoff is needed for numerical reasons...(nonconvergence after 5 iterations)
                 d=0.0
+
+!Edit by Lei Cai, from Hanna Lee--start
+                micro_sigma(c) = micro_sigma_ex(c)
+!Edit by Lei Cai, from Hanna Lee--end
 
                 sigma=1.0e3 * micro_sigma(c) ! convert to mm
                 do l=1,10

@@ -680,7 +680,11 @@ contains
     use shr_const_mod   , only : SHR_CONST_TKFRZ
     use clm_varpar      , only : nlevsoi, nlevgrnd, nlevsno, nlevlak, nlevurb
     use clm_varcon      , only : denice, denh2o, sb
-    use landunit_varcon , only : istwet, istsoil, istdlak
+
+!Edit by Lei Cai--start    Note by Lei Cai: istsoil is not referred in the following code, why?
+    use landunit_varcon , only : istwet, istsoil, istsoil_li, istsoil_mi, istsoil_hi, istdlak
+!Edit by Lei Cai--end
+
     use column_varcon   , only : icol_road_imperv, icol_roof, icol_sunwall
     use column_varcon   , only : icol_shadewall, icol_road_perv
     use clm_varctl      , only : iulog, use_vancouver, use_mexicocity

@@ -27,7 +27,9 @@ module BalanceCheckMod
   use LandunitType       , only : lun                
   use ColumnType         , only : col                
   use PatchType          , only : patch                
-  use landunit_varcon    , only : istdlak, istsoil,istcrop,istwet,istice_mec
+!Edit by Lei Cai--start  
+  use landunit_varcon    , only : istdlak, istsoil, istsoil_li, istsoil_mi, istsoil_hi, istcrop,istwet,istice_mec
+!Edit by Lei Cai--end
   use column_varcon      , only : icol_roof, icol_sunwall, icol_shadewall
   use column_varcon      , only : icol_road_perv, icol_road_imperv
   use clm_varcon         , only : aquifer_water_baseline
@@ -134,6 +136,9 @@ contains
     !-----------------------------------------------------------------------
 
     associate(                                               & 
+!Edit by Lei Cai, from Hanna Lee--start  KSA2019: excess_ice does not seem to be used!										  
+         excess_ice   =>    waterstate_inst%excess_ice_col    , & ! Input:  [real(r8) (:)   ]  excess soil ice
+!Edit by Lei Cai, from Hanna Lee--end	
          zi           =>    col%zi                         , & ! Input:  [real(r8) (:,:) ]  interface level below a "z" level (m) 
          zwt          =>    soilhydrology_inst%zwt_col     , & ! Input:  [real(r8) (:)   ]  water table depth (m)                   
          wa           =>    soilhydrology_inst%wa_col      , & ! Output: [real(r8) (:)   ]  water in the unconfined aquifer (mm)    

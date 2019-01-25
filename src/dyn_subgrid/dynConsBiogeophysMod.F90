@@ -211,17 +211,25 @@ contains
     ! !LOCAL VARIABLES:
     real(r8) :: liquid_mass_col(bounds%begc:bounds%endc) ! kg m-2
     real(r8) :: ice_mass_col(bounds%begc:bounds%endc)    ! kg m-2
+!Edit by Lei Cai--start
+    real(r8) :: excess_ice_col(bounds%begc:bounds%endc)
+!Edit by Lei Cai--end
 
-    character(len=*), parameter :: subname = 'dyn_water_content'
+  character(len=*), parameter :: subname = 'dyn_water_content'
     !-----------------------------------------------------------------------
 
     SHR_ASSERT_ALL((ubound(liquid_mass) == (/bounds%endg/)), errMsg(sourcefile, __LINE__))
     SHR_ASSERT_ALL((ubound(ice_mass) == (/bounds%endg/)), errMsg(sourcefile, __LINE__))
-
+!Edit by Lei Cai--start
+	SHR_ASSERT_ALL((ubound(excess_ice) == (/bounds%endg/)), errMsg(sourcefile, __LINE__))
+!Edit by Lei Cai--end
+!Edit by Lei Cai--start
     call ComputeLiqIceMassNonLake(bounds, num_nolakec, filter_nolakec, &
          soilhydrology_inst, waterstate_inst, &
          liquid_mass_col(bounds%begc:bounds%endc), &
-         ice_mass_col(bounds%begc:bounds%endc))
+         ice_mass_col(bounds%begc:bounds%endc),  &
+		 excess_ice_col(bounds%begc:bounds%endc))
+!Edit by Lei Cai--end
 
     call ComputeLiqIceMassLake(bounds, num_lakec, filter_lakec, &
          waterstate_inst, &

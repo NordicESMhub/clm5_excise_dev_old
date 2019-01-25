@@ -477,7 +477,9 @@ contains
      ! !USES:
      use clm_varpar       , only : numrad, nlevsno
      use clm_varcon       , only : spval
-     use landunit_varcon  , only : istsoil, istcrop 
+!Edit by Lei Cai--start
+     use landunit_varcon  , only : istsoil, istsoil_li, istsoil_mi, istsoil_hi, istcrop 
+!Edit by Lei Cai--end
      use clm_varctl       , only : subgridflag, use_snicar_frc, iulog, use_SSRE
      use clm_time_manager , only : get_step_size, is_near_local_noon
      use SnowSnicarMod    , only : DO_SNO_OC
@@ -656,7 +658,11 @@ contains
           sabg(p)       = 0._r8
           sabv(p)       = 0._r8
           fsa(p)        = 0._r8
-          if (lun%itype(l)==istsoil .or. lun%itype(l)==istcrop) then
+!Edit by Lei Cai--start
+          if (lun%itype(l)==istsoil .or. lun%itype(l)==istsoil_li .or. &
+		      lun%itype(l)==istsoil_mi .or. lun%itype(l)==istsoil_hi .or. &
+			  lun%itype(l)==istcrop) then
+!Edit by Lei Cai--end
              fsa_r(p) = 0._r8
           end if
           sabg_lyr(p,:) = 0._r8
@@ -692,7 +698,11 @@ contains
              if (ib == 1) then
                 parveg(p) = cad(p,ib) + cai(p,ib)
              end if
-             if (lun%itype(l)==istsoil .or. lun%itype(l)==istcrop) then
+!Edit by Lei Cai--start
+             if (lun%itype(l)==istsoil .or. lun%itype(l)==istsoil_li .or. &
+		         lun%itype(l)==istsoil_mi .or. lun%itype(l)==istsoil_hi .or. &
+			     lun%itype(l)==istcrop) then
+!Edit by Lei Cai--end
                 fsa_r(p)  = fsa_r(p)  + cad(p,ib) + cai(p,ib)
              end if
 
@@ -709,7 +719,11 @@ contains
              absrad  = trd(p,ib)*(1._r8-albgrd(c,ib)) + tri(p,ib)*(1._r8-albgri(c,ib))
              sabg(p) = sabg(p) + absrad
              fsa(p)  = fsa(p)  + absrad
-             if (lun%itype(l)==istsoil .or. lun%itype(l)==istcrop) then
+!Edit by Lei Cai--start
+             if (lun%itype(l)==istsoil .or. lun%itype(l)==istsoil_li .or. &
+		         lun%itype(l)==istsoil_mi .or. lun%itype(l)==istsoil_hi .or. &
+			     lun%itype(l)==istcrop) then
+!Edit by Lei Cai--end
                 fsa_r(p)  = fsa_r(p)  + absrad
              end if
              if (snl(c) == 0) then
@@ -848,7 +862,11 @@ contains
           endif
 
           ! Diagnostic: shortwave penetrating ground (e.g. top layer)
-          if (lun%itype(l) == istsoil .or. lun%itype(l) == istcrop) then
+!Edit by Lei Cai--start
+             if (lun%itype(l)==istsoil .or. lun%itype(l)==istsoil_li .or. &
+		         lun%itype(l)==istsoil_mi .or. lun%itype(l)==istsoil_hi .or. &
+			     lun%itype(l)==istcrop) then
+!Edit by Lei Cai--end
              sabg_pen(p) = sabg(p) - sabg_lyr(p, snl(c)+1)
           end if
 

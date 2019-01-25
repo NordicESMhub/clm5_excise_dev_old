@@ -6,7 +6,11 @@ module SoilWaterPlantSinkMod
    use shr_log_mod           , only : errMsg => shr_log_errMsg
    use abortutils            , only : endrun
    use clm_varctl            , only : iulog
-   use landunit_varcon       , only : istsoil,istcrop
+
+!Edit by Lei Cai--start
+   use landunit_varcon       , only : istsoil,istsoil_li, istsoil_mi, istsoil_hi, istcrop
+!Edit by Lei Cai--end
+
    use column_varcon         , only : icol_road_perv
    implicit none
 
@@ -94,7 +98,13 @@ contains
       do fc = 1, num_hydrologyc
          c = filter_hydrologyc(fc)
          l = col%landunit(c)
-         if ( (col%itype(c) /= icol_road_perv) .and. (lun%itype(l) /= istsoil) ) then
+
+!         if ( (col%itype(c) /= icol_road_perv) .and. (lun%itype(l) /= istsoil) ) then  !KSA2019 Org code
+!Edit by Lei Cai--start !KSA2019 fix
+         if ( (col%itype(c) /= icol_road_perv) .and. (lun%itype(l) /= istsoil .and. lun%itype(l) /= istsoil_li .and. &
+		       lun%itype(l) /= istsoil_mi .and. lun%itype(l) /= istsoil_hi) ) then
+!Edit by Lei Cai--end
+!    	    write(iulog,*) 'In SoilWaterPlandSinkMod 2). Counting filters. lun%itype,fc,c,l', lun%itype, fc, c, l   !KSA2019 DEBUG 
             num_filterc = num_filterc + 1
             filterc(num_filterc) = c
          end if
@@ -115,7 +125,13 @@ contains
       do fc = 1, num_hydrologyc
          c = filter_hydrologyc(fc)
          l = col%landunit(c)
-         if ( (lun%itype(l) == istsoil) ) then
+
+!Edit by Lei Cai-start
+         if ( (lun%itype(l) == istsoil .or. lun%itype(l) == istsoil_li .or.  &
+		       lun%itype(l) == istsoil_mi .or. lun%itype(l) == istsoil_hi) ) then
+!Edit by Lei Cai--end
+!      	    write(iulog,*) 'In SoilWaterPlandSinkMod 3). Counting filters. lun%itype,fc,c,l', lun%itype, fc, c, l   !KSA2019 DEBUG 
+!	    write(iulog,*) 'c = ', c, 'l = ', l  !KSA2019 DEBUG
             num_filterc = num_filterc + 1
             filterc(num_filterc) = c
          end if
@@ -134,6 +150,8 @@ contains
           write(iulog,*) 'The total number of columns flagged to root water uptake'
           write(iulog,*) 'did not match the total number calculated'
           write(iulog,*) 'This is likely a problem with the interpretation of column/lu filters.'
+!          write(iulog,*) 'num_hydrologyc=', num_hydrologyc, ', num_filterc_tot=', num_filterc_tot  !KSA2019 DEBUG  
+!	  write(iulog,*) 'filter_hydrologyc=', filter_hydrologyc, 'col%landunit=', col%landunit, 'num_filterc=', num_filterc   !KSA2019 DEBUG
           call endrun(msg=errMsg(sourcefile, __LINE__))
       end if
 

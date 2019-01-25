@@ -16,7 +16,10 @@ module landunit_varcon
   ! Initialize landunit type constants
   !------------------------------------------------------------------
 
-  integer, parameter, public :: istsoil    = 1  !soil         landunit type (natural vegetation)
+!Edit by Lei Cai--start
+  integer, parameter, public :: istsoil    = 1  !soil         landunit type (natural vegetation with no excess ice)
+!Edit by Lei Cai--end
+
   integer, parameter, public :: istcrop    = 2  !crop         landunit type
   ! Landunit 3 currently unused (used to be non-multiple elevation class glacier type: istice)
   integer, parameter, public :: istice_mec = 4  !land ice (multiple elevation classes) landunit type
@@ -29,8 +32,13 @@ module landunit_varcon
   integer, parameter, public :: isturb_md  = 9  !urban md     landunit type
   integer, parameter, public :: isturb_MAX = 9  !maximum urban type index
 
-  integer, parameter, public :: max_lunit  = 9  !maximum value that lun%itype can have
-                                        !(i.e., largest value in the above list)
+!Edit by Lei Cai--start
+  integer, parameter, public :: istsoil_li    = 10  !soil         landunit type (natural vegetation with low excess ice)
+  integer, parameter, public :: istsoil_mi    = 11  !soil         landunit type (natural vegetation with medium excess ice)
+  integer, parameter, public :: istsoil_hi    = 12  !soil         landunit type (natural vegetation with high excess ice)
+  integer, parameter, public :: max_lunit  = 12  !maximum value that lun%itype can have
+                                      !(i.e., largest value in the above list)
+!Edit by Lei Cai--end
 
   integer, parameter, public                   :: landunit_name_length = 40  ! max length of landunit names
   character(len=landunit_name_length), public  :: landunit_names(max_lunit)  ! name of each landunit type
@@ -113,8 +121,13 @@ contains
     !-----------------------------------------------------------------------
     
     landunit_names(:) = not_set
-
-    landunit_names(istsoil) = 'vegetated_or_bare_soil'
+	
+!Edit by Lei Cai--start
+    landunit_names(istsoil) = 'vegetated_or_bare_soil_no_exice'
+    landunit_names(istsoil_li) = 'vegetated_or_bare_soil_low_exice'
+	landunit_names(istsoil_mi) = 'vegetated_or_bare_soil_mid_exice'
+	landunit_names(istsoil_hi) = 'vegetated_or_bare_soil_high_exice'
+!Edit by Lei Cai--end
     landunit_names(istcrop) = 'crop'
     landunit_names(istcrop+1) = unused
     landunit_names(istice_mec) = 'landice_multiple_elevation_classes'

@@ -428,7 +428,11 @@ contains
     !
     ! !USES:
     use clm_varcon      , only : ispval
-    use landunit_varcon , only : istsoil, istcrop
+	
+!Edit by Lei Cai--start
+    use landunit_varcon , only : istsoil, istsoil_li, istsoil_mi, istsoil_hi, istcrop
+!Edit by Lei Cai--end
+
     use clm_varpar      , only : natpft_lb
     !
     ! !ARGUMENTS:
@@ -461,7 +465,12 @@ contains
     patch%itype(pi) = ptype
     !end if
 
-    if (lun%itype(li) == istsoil .or. lun%itype(li) == istcrop) then
+!Edit by Lei Cai--start
+    if (lun%itype(li) == istsoil .or. lun%itype(li) == istsoil_li .or. &
+	    lun%itype(li) == istsoil_mi .or. lun%itype(li) == istsoil_hi .or. &
+		lun%itype(li) == istcrop) then
+!Edit by Lei Cai--end
+
        lb_offset = 1 - natpft_lb
        patch%mxy(pi) = ptype + lb_offset
     else

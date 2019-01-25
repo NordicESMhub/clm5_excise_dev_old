@@ -148,6 +148,10 @@ contains
     character(len=32) :: subname = 'SurfaceRunoff'         !subroutine name
     !-----------------------------------------------------------------------
 
+!Edit by Lei Cai, from Hanna Lee--start
+    real(r8) :: dz2(bounds%begc:bounds%endc,1:nlevsoi)   ! used in computing excess_ice effects
+!Edit by Lei Cai, from Hanna Lee--end
+
     associate(                                                        & 
          snl              =>    col%snl                             , & ! Input:  [integer  (:)   ]  minus number of snow layers                        
          dz               =>    col%dz                              , & ! Input:  [real(r8) (:,:) ]  layer depth (m)                                 
@@ -160,6 +164,9 @@ contains
 
          h2osoi_ice       =>    waterstate_inst%h2osoi_ice_col      , & ! Input:  [real(r8) (:,:) ]  ice lens (kg/m2)                                
          h2osoi_liq       =>    waterstate_inst%h2osoi_liq_col      , & ! Output: [real(r8) (:,:) ]  liquid water (kg/m2)                            
+!Edit by Lei Cai--start		 
+         excess_ice       =>    waterstate_inst%excess_ice_col      , & ! excess ice
+!Edit by Lei Cai--end
 
          qflx_snow_h2osfc =>    waterflux_inst%qflx_snow_h2osfc_col , & ! Input:  [real(r8) (:)   ]  snow falling on surface water (mm/s)              
          qflx_floodc      =>    waterflux_inst%qflx_floodc_col      , & ! Input:  [real(r8) (:)   ]  column flux of flood water from RTM               
@@ -195,7 +202,12 @@ contains
             ! Porosity of soil, partial volume of ice and liquid, fraction of ice in each layer,
             ! fractional impermeability
 
-            vol_ice(c,j) = min(watsat(c,j), h2osoi_ice(c,j)/(dz(c,j)*denice))
+ !Edit by Lei Cai, from Hanna Lee--start
+            dz2(c,j)   = dz(c,j) + excess_ice(c,j)/denice
+            vol_ice(c,j) = min(watsat(c,j), (h2osoi_ice(c,j)+excess_ice(c,j))/(dz2(c,j)*denice))
+!Edit by Lei Cai, from Hanna Lee--end
+
+!           vol_ice(c,j) = min(watsat(c,j), h2osoi_ice(c,j)/(dz(c,j)*denice))
             if (origflag == 1) then
                icefrac(c,j) = min(1._r8,h2osoi_ice(c,j)/(h2osoi_ice(c,j)+h2osoi_liq(c,j)))
             else
@@ -321,7 +333,9 @@ contains
      use clm_varpar       , only : nlevsoi
      use clm_varcon       , only : denh2o, denice, roverg, wimp, pc, mu, tfrz
      use column_varcon    , only : icol_roof, icol_road_imperv, icol_sunwall, icol_shadewall, icol_road_perv
-     use landunit_varcon  , only : istsoil, istcrop
+!Edit by Lei Cai--start
+     use landunit_varcon  , only : istsoil, istsoil_li, istsoil_mi, istsoil_hi, istcrop
+!Edi tby Lei Cai--end
      use clm_time_manager , only : get_step_size
      !
      ! !ARGUMENTS:
@@ -432,7 +446,11 @@ contains
        do fc = 1, num_hydrologyc
           c = filter_hydrologyc(fc)
           ! partition moisture fluxes between soil and h2osfc       
-          if (lun%itype(col%landunit(c)) == istsoil .or. lun%itype(col%landunit(c))==istcrop) then
+!Edit by Lei Cai--start
+          if (lun%itype(col%landunit(c)) == istsoil .or. lun%itype(col%landunit(c)) == istsoil_li .or. &
+		      lun%itype(col%landunit(c)) == istsoil_mi .or. lun%itype(col%landunit(c)) == istsoil_hi .or. &
+			  lun%itype(col%landunit(c))==istcrop) then
+!Edit by Lei Cai--end
 
              ! explicitly use frac_sno=0 if snl=0
              if (snl(c) >= 0) then

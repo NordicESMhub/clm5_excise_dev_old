@@ -97,6 +97,13 @@ module WaterstateType
      real(r8), pointer :: errh2o_patch           (:)   ! water conservation error (mm H2O)
      real(r8), pointer :: errh2o_col             (:)   ! water conservation error (mm H2O)
      real(r8), pointer :: errh2osno_col          (:)   ! snow water conservation error(mm H2O)
+!Edit by Lei Cai, from Hanna Lee--start
+     real(r8), pointer :: excess_ice_col         (:,:) ! col excess ice lens/(kg/m2) (new) (-nlevsno+1:nlevgrnd)
+     real(r8), pointer :: init_exice             (:,:) ! initial value of col excess ice lens/(kg/m2)
+     real(r8), pointer :: exice_melt_lev         (:,:)   ! excess ice melting (m) (new)
+     real(r8), pointer :: exice_melt             (:)   ! column excess ice melting (m) (new)
+     real(r8), pointer :: micro_sigma_ex         (:)   ! microtopography change from excess ice melting (m) (new)
+!Edit by Lei Cai, from Hanna Lee--end
 
    contains
 
@@ -195,6 +202,16 @@ contains
     allocate(this%liqcan_patch           (begp:endp))                     ; this%liqcan_patch           (:)   = nan  
     allocate(this%snounload_patch        (begp:endp))                     ; this%snounload_patch        (:)   = nan  
     allocate(this%h2osfc_col             (begc:endc))                     ; this%h2osfc_col             (:)   = nan   
+
+!Edit by Lei Cai, from Hanna Lee--start
+    allocate(this%excess_ice_col         (begc:endc,-nlevsno+1:nlevgrnd)) ; this%excess_ice_col         (:,:) = nan
+    allocate(this%init_exice             (begc:endc,-nlevsno+1:nlevgrnd)) ; this%init_exice             (:,:) = 0.0_r8
+    allocate(this%exice_melt_lev         (begc:endc,-nlevsno+1:nlevgrnd)) ; this%exice_melt_lev         (:,:) = 0.0_r8 !AE:changd nan to 0
+!TODO: double check this
+    allocate(this%exice_melt             (begc:endc))                     ; this%exice_melt             (:) = nan
+    allocate(this%micro_sigma_ex         (begc:endc))                     ; this%micro_sigma_ex         (:) = nan
+!Edit by Lei Cai, from Hanna Lee--end
+
     allocate(this%swe_old_col            (begc:endc,-nlevsno+1:0))        ; this%swe_old_col            (:,:) = nan   
     allocate(this%liq1_grc               (begg:endg))                     ; this%liq1_grc               (:)   = nan
     allocate(this%liq2_grc               (begg:endg))                     ; this%liq2_grc               (:)   = nan
@@ -588,6 +605,23 @@ contains
          avgflag='A', long_name='imbalance in snow depth (liquid water)', &
          ptr_col=this%errh2osno_col, c2l_scale_type='urbanf')
 
+!Edit by Lei Cai, from Hanna Lee--start
+    this%excess_ice_col(begc:endc,:) = spval
+    call hist_addfld2d (fname='EXCESS_ICE',  units='kg/m2', type2d='levgrnd', &
+         avgflag='A', long_name='excess soil ice (vegetated landunits only)', &
+         ptr_col=this%excess_ice_col, l2g_scale_type='veg')
+
+    this%exice_melt(begc:endc) = spval
+    call hist_addfld1d (fname='EXICE_MELT',  units='m', &
+         avgflag='A', long_name='melting of excess soil ice (vegetated landunits only)', &
+         ptr_col=this%exice_melt, l2g_scale_type='veg')
+
+    this%micro_sigma_ex(begc:endc) = spval
+    call hist_addfld1d (fname='MICRO_SIGMA_EX',  units='m', &
+         avgflag='A', long_name='microtopography change from melting excess ice (vegetated landunits only)', &
+         ptr_col=this%micro_sigma_ex, l2g_scale_type='veg')
+!Edit by Lei Cai, from Hanna Lee--end
+
   end subroutine InitHistory
 
   !-----------------------------------------------------------------------
@@ -604,11 +638,19 @@ contains
     use shr_kind_mod    , only : r8 => shr_kind_r8
     use shr_const_mod   , only : SHR_CONST_TKFRZ
     use clm_varpar      , only : nlevsoi, nlevgrnd, nlevsno, nlevlak, nlevurb
-    use landunit_varcon , only : istwet, istsoil, istdlak, istcrop, istice_mec  
+
+!Edit by Lei Cai--start
+    use landunit_varcon , only : istwet, istsoil, istsoil_li, istsoil_mi, istsoil_hi, istdlak, istcrop, istice_mec  
+!Edit by Lei Cai--end 
+
     use column_varcon   , only : icol_shadewall, icol_road_perv
     use column_varcon   , only : icol_road_imperv, icol_roof, icol_sunwall
     use clm_varcon      , only : denice, denh2o, spval, sb, bdsno 
-    use clm_varcon      , only : zlnd, tfrz, spval, pc
+
+!Edit by Lei Cai, from Hanna Lee--start
+    use clm_varcon      , only : zlnd, tfrz, spval, pc, grlnd
+!Edit by Lei Cai, from Hanna Lee--end
+
     use clm_varctl      , only : fsurdat, iulog
     use clm_varctl        , only : use_bedrock
     use spmdMod         , only : masterproc
@@ -814,6 +856,61 @@ contains
          end if
       end do
 
+!Edit by Lei Cai, from Hanna Lee--start
+      !--------------------------------------------
+      ! Set Excess Ice
+      !--------------------------------------------
+      this%excess_ice_col(bounds%begc:bounds%endc,-nlevsno+1:) = spval
+
+	        this%excess_ice_col = 0.0
+
+!      exice_in(:) = 0.0
+
+      do c = bounds%begc,bounds%endc
+         g = col%gridcell(c)
+         l = col%landunit(c)
+         if (.not. lun%lakpoi(l)) then  !not lake
+            if (lun%itype(l) == istsoil_li) then
+               nlevs = nlevgrnd
+               do j = 1, nlevs
+!                  if (col%zi(c,j) >= 1._r8 .and. col%zi(c,j) <= 3._r8) then
+                  if (col%zi(c,j) <= 4._r8) then
+                     this%excess_ice_col(c,j) = col%dz(c,j)*denice*0.05    !low excess ice (5%)
+                  else
+                     this%excess_ice_col(c,j) = 0.0_r8
+                  endif
+                  this%init_exice(c,j) = 0.0_r8
+                  this%init_exice(c,j) = this%excess_ice_col(c,j)
+               end do
+			else if (lun%itype(l) == istsoil_mi) then
+			   do j = 1, nlevs
+!                  if (col%zi(c,j) >= 1._r8 .and. col%zi(c,j) <= 3._r8) then
+                  if (col%zi(c,j) <= 4._r8) then
+                     this%excess_ice_col(c,j) = col%dz(c,j)*denice*0.15   ! medium excess ice (15%)
+                  else
+                     this%excess_ice_col(c,j) = 0.0_r8
+                  endif
+                  this%init_exice(c,j) = 0.0_r8
+                  this%init_exice(c,j) = this%excess_ice_col(c,j)
+               end do
+			else if (lun%itype(l) == istsoil_hi) then
+			    do j = 1, nlevs
+!                  if (col%zi(c,j) >= 1._r8 .and. col%zi(c,j) <= 3._r8) then
+                  if (col%zi(c,j) <= 4._r8) then
+                     this%excess_ice_col(c,j) = col%dz(c,j)*denice*0.25    !high excess ice (25%)
+                  else
+                     this%excess_ice_col(c,j) = 0.0_r8
+                  endif
+                  this%init_exice(c,j) = 0.0_r8
+                  this%init_exice(c,j) = this%excess_ice_col(c,j)
+               end do
+			else 
+			    this%init_exice(c,j) = 0.0_r8
+                this%init_exice(c,j) = this%excess_ice_col(c,j)
+            endif
+         endif
+      enddo
+!Edit by Lei Cai, from Hanna Lee--end
 
       !--------------------------------------------
       ! Set Lake water

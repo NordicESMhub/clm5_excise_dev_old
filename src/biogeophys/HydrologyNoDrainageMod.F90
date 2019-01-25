@@ -62,7 +62,11 @@ contains
     !
     ! !USES:
     use clm_varcon           , only : denh2o, denice, hfus, grav, tfrz
-    use landunit_varcon      , only : istwet, istsoil, istcrop, istdlak 
+
+!Edit by Lei Cai--start
+    use landunit_varcon      , only : istwet, istsoil, istsoil_li, istsoil_mi, istsoil_hi, istcrop, istdlak
+!Edit by Lei Cai--end
+
     use column_varcon        , only : icol_roof, icol_road_imperv, icol_road_perv, icol_sunwall
     use column_varcon        , only : icol_shadewall
     use clm_varctl           , only : use_cn
@@ -424,7 +428,13 @@ contains
             t_soi_10cm(c) = t_soi_10cm(c)/0.1_r8
             tsoi17(c) =  tsoi17(c)/0.17_r8         ! F. Li and S. Levis
          end if
-         if (lun%itype(l)==istsoil .or. lun%itype(l)==istcrop) then
+
+!Edit by Lei Cai--start
+         if (lun%itype(l) == istsoil .or. lun%itype(l) == istsoil_li .or. &
+		     lun%itype(l) == istsoil_mi .or. lun%itype(l) == istsoil_hi .or. &
+			 lun%itype(l) == istcrop) then
+!Edit by Lei Cai--end
+
             t_grnd_r(c) = t_soisno(c,snl(c)+1)
          end if
 

@@ -301,7 +301,9 @@ contains
     ! Determine whether the given landunit is active
     !
     ! !USES:
-    use landunit_varcon, only : istsoil, istice_mec, isturb_MIN, isturb_MAX
+!Edit by Lei Cai--start
+    use landunit_varcon, only : istsoil, istsoil_li, istsoil_mi, istsoil_hi, istice_mec, isturb_MIN, isturb_MAX
+!Edit by Lei Cai--end
     !
     ! !ARGUMENTS:
     implicit none
@@ -358,7 +360,10 @@ contains
        ! would remain at its cold start initialization values, which would be a Bad
        ! Thing. Ensuring that all vegetated points within the icemask are active gets
        ! around this problem - as well as having other benefits, as noted above.)
-       if (lun%itype(l) == istsoil) then
+!Edit by Lei Cai--start
+       if (lun%itype(l) == istsoil .or. lun%itype(l) == istsoil_li .or. &
+	        lun%itype(l) == istsoil_mi .or. lun%itype(l) == istsoil_hi) then
+!Edit by Lei Cai--end
           is_active_l = .true.
        end if
 
@@ -832,7 +837,9 @@ contains
     ! Set pct_nat_pft & pct_cft diagnostic fields: % of PFTs on their landunit
     !
     ! !USES:
-    use landunit_varcon, only : istsoil, istcrop
+!Edit by Lei Cai--start
+    use landunit_varcon, only : istsoil, istsoil_li, istsoil_mi, istsoil_hi, istcrop
+!Edit by Lei Cai--end
     use clm_varpar, only : natpft_lb, cft_lb
     !
     ! !ARGUMENTS:
@@ -858,7 +865,11 @@ contains
        g = patch%gridcell(p)
        l = patch%landunit(p)
        ptype = patch%itype(p)
-       if (lun%itype(l) == istsoil .and. (.not.use_fates) ) then
+!Edit by Lei Cai--start
+       if ((lun%itype(l) == istsoil .or. lun%itype(l) == istsoil_li .or. &
+	       lun%itype(l) == istsoil_mi .or. lun%itype(l) == istsoil_hi ) &
+		   .and. (.not.use_fates) ) then
+!Edit by Lei Cai--end
           ptype_1indexing = ptype + (1 - natpft_lb)
           subgrid_weights_diagnostics%pct_nat_pft(g, ptype_1indexing) = patch%wtlunit(p) * 100._r8
        else if (lun%itype(l) == istcrop) then

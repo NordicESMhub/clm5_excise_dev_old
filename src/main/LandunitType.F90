@@ -16,6 +16,12 @@ module LandunitType
   !   8  => (isturb_hd)  urban hd
   !   9  => (isturb_md)  urban md
   !
+!Edit by Lei Cai--start
+  !  10  => (istsoil_li) soil (natural vegetation with low excess ice)
+  !  11  => (istsoil_mi) soil (natural vegetation with mid excess ice)
+  !  12  => (istsoil_hi) soil (natural vegetation with high excess ice)
+!Edit by Lei Cai--end
+
   use shr_kind_mod   , only : r8 => shr_kind_r8
   use shr_infnan_mod , only : nan => shr_infnan_nan, assignment(=)
   use clm_varcon     , only : ispval

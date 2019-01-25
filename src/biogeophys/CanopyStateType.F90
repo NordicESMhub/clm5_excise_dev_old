@@ -7,7 +7,9 @@ module CanopyStateType
   use shr_log_mod     , only : errMsg => shr_log_errMsg
   use abortutils      , only : endrun
   use decompMod       , only : bounds_type
-  use landunit_varcon , only : istsoil, istcrop
+!Edit by Lei Cai--start
+  use landunit_varcon , only : istsoil, istsoil_li, istsoil_mi, istsoil_hi, istcrop
+!Edit by Lei Cai--end
   use clm_varpar      , only : nlevcan, nvegwcs
   use clm_varcon      , only : spval  
   use clm_varctl      , only : iulog, use_cn, use_fates, use_hydrstress
@@ -518,7 +520,12 @@ contains
        this%dewmx_patch(p)      = 0.1_r8
        this%vegwp_patch(p,:)    = -2.5e4_r8
 
-       if (lun%itype(l) == istsoil .or. lun%itype(l) == istcrop) then
+!Edit by Lei Cai--start
+         if (lun%itype(l) == istsoil .or. lun%itype(l) == istsoil_li .or. &
+		     lun%itype(l) == istsoil_mi .or. lun%itype(l) == istsoil_hi .or. &
+			 lun%itype(l) == istcrop) then
+!Edit by Lei Cai--end
+  
           this%laisun_patch(p) = 0._r8
           this%laisha_patch(p) = 0._r8
        end if
@@ -531,7 +538,12 @@ contains
     do c = bounds%begc, bounds%endc
        l = col%landunit(c)
 
-       if (lun%itype(l) == istsoil .or. lun%itype(l) == istcrop) then
+!Edit by Lei Cai--start
+         if (lun%itype(l) == istsoil .or. lun%itype(l) == istsoil_li .or. &
+		     lun%itype(l) == istsoil_mi .or. lun%itype(l) == istsoil_hi .or. &
+			 lun%itype(l) == istcrop) then
+!Edit by Lei Cai--end
+  
           this%alt_col(c)               = 0._r8 !iniitialized to spval for all columns
           this%altmax_col(c)            = 0._r8 !iniitialized to spval for all columns
           this%altmax_lastyear_col(c)   = 0._r8 !iniitialized to spval for all columns

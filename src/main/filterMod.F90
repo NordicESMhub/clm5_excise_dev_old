@@ -289,7 +289,9 @@ contains
     ! !USES:
     use decompMod       , only : BOUNDS_LEVEL_CLUMP
     use pftconMod       , only : npcropmin
-    use landunit_varcon , only : istsoil, istcrop, istice_mec
+!Edit by Lei Cai--start
+    use landunit_varcon , only : istsoil, istsoil_li, istsoil_mi, istsoil_hi, istcrop, istice_mec
+!Edit by Lei Cai--end
     !
     ! !ARGUMENTS:
     type(bounds_type)       , intent(in)    :: bounds  
@@ -371,7 +373,13 @@ contains
     do c = bounds%begc,bounds%endc
        if (col%active(c) .or. include_inactive) then
           l =col%landunit(c)
-          if (lun%itype(l) == istsoil .or. lun%itype(l) == istcrop) then
+		  
+!Edit by Lei Cai--start
+          if (lun%itype(l) == istsoil .or. lun%itype(l) == istsoil_li .or. &
+              lun%itype(l) == istsoil_mi .or. lun%itype(l) == istsoil_hi .or. &
+			  lun%itype(l) == istcrop) then
+!Edit by Lei Cai--end
+
              fs = fs + 1
              this_filter(nc)%soilc(fs) = c
           end if
@@ -385,7 +393,13 @@ contains
     do p = bounds%begp,bounds%endp
        if (patch%active(p) .or. include_inactive) then
           l =patch%landunit(p)
-          if (lun%itype(l) == istsoil .or. lun%itype(l) == istcrop) then
+		  
+!Edit by Lei Cai--start
+          if (lun%itype(l) == istsoil .or. lun%itype(l) == istsoil_li .or. &
+		      lun%itype(l) == istsoil_mi .or. lun%itype(l) == istsoil_hi .or. &
+			  lun%itype(l) == istcrop) then
+!Edit by Lei Cai--end
+
              fs = fs + 1
              this_filter(nc)%soilp(fs) = p
           end if
@@ -405,6 +419,7 @@ contains
        end if
     end do
     this_filter(nc)%num_hydrologyc = f
+!    write(*,*) 'bounds%begc,bounds%endc:', bounds%begc,bounds%endc !KSA2019 DEBUG
 
     ! Create prognostic crop and soil w/o prog. crop filters at patch-level
     ! according to where the crop model should be used
@@ -418,7 +433,11 @@ contains
              this_filter(nc)%pcropp(fl) = p
           else
              l =patch%landunit(p)
-             if (lun%itype(l) == istsoil .or. lun%itype(l) == istcrop) then
+!Edit by Lei Cai--start
+             if (lun%itype(l) == istsoil .or. lun%itype(l) == istsoil_li .or. &
+			     lun%itype(l) == istsoil_mi .or. lun%itype(l) == istsoil_hi .or. & 
+				 lun%itype(l) == istcrop) then
+!Edit by Lei Cai--end
                 fnl = fnl + 1
                 this_filter(nc)%soilnopcropp(fnl) = p
              end if

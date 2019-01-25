@@ -60,7 +60,11 @@ contains
     use domainMod         , only : ldomain
     use decompMod         , only : get_proc_bounds, get_clump_bounds, get_proc_clumps
     use subgridWeightsMod , only : compute_higher_order_weights
-    use landunit_varcon   , only : istsoil, istwet, istdlak, istice_mec
+	
+!Edit by Lei Cai--start
+    use landunit_varcon   , only : istsoil, istsoil_li, istsoil_mi, istsoil_hi, istwet, istdlak, istice_mec
+!Edit by Lei Cai--end
+
     use landunit_varcon   , only : isturb_tbd, isturb_hd, isturb_md, istcrop
     use clm_varctl        , only : use_fates
     use shr_const_mod     , only : SHR_CONST_PI
@@ -138,6 +142,24 @@ contains
           call set_landunit_veg_compete(               &
                ltype=istsoil, gi=gdc, li=li, ci=ci, pi=pi)
        end do
+
+!Edit by Lei Cai--start
+       ! Determine naturally vegetated landunit with low excess ice
+       do gdc = bounds_clump%begg,bounds_clump%endg
+          call set_landunit_veg_compete(               &
+               ltype=istsoil_li, gi=gdc, li=li, ci=ci, pi=pi)
+       end do
+	   ! Determine naturally vegetated landunit with medium excess ice
+       do gdc = bounds_clump%begg,bounds_clump%endg
+          call set_landunit_veg_compete(               &
+               ltype=istsoil_mi, gi=gdc, li=li, ci=ci, pi=pi)
+       end do
+	          ! Determine naturally vegetated landunit with high excess ice
+       do gdc = bounds_clump%begg,bounds_clump%endg
+          call set_landunit_veg_compete(               &
+               ltype=istsoil_hi, gi=gdc, li=li, ci=ci, pi=pi)
+       end do
+!Edit by Lei Cai--end
 
        ! Determine crop landunit
        do gdc = bounds_clump%begg,bounds_clump%endg
@@ -222,7 +244,16 @@ contains
     !
     ! !USES
     use clm_instur, only : wt_lunit, wt_nat_patch
-    use subgridMod, only : subgrid_get_info_natveg, natveg_patch_exists
+	
+!Edit by Lei Cai--start
+    use subgridMod, only : subgrid_get_info_natveg_ni, natveg_patch_exists, &
+    		    	       subgrid_get_info_natveg_li, &
+	                       subgrid_get_info_natveg_mi, subgrid_get_info_natveg_hi
+						   					   
+    use landunit_varcon   , only : istsoil, istsoil_li, istsoil_mi, istsoil_hi
+						   
+!Edit by Lei Cai--end
+
     use clm_varpar, only : numpft, maxpatch_pft, natpft_lb, natpft_ub
     !
     ! !ARGUMENTS:
@@ -245,9 +276,29 @@ contains
 
     ! Set decomposition properties
 
-    call subgrid_get_info_natveg(gi, &
-          npatches=npatches, ncols=ncols, nlunits=nlunits)
-    wtlunit2gcell = wt_lunit(gi, ltype)
+!Edit by Lei Cai--start
+    select case (ltype)
+    case (istsoil)
+       call subgrid_get_info_natveg_ni(gi, &
+            npatches=npatches, ncols=ncols, nlunits=nlunits)
+    case (istsoil_li)
+       call subgrid_get_info_natveg_li(gi, &
+            npatches=npatches, ncols=ncols, nlunits=nlunits)
+    case (istsoil_mi)
+       call subgrid_get_info_natveg_mi(gi, &
+            npatches=npatches, ncols=ncols, nlunits=nlunits)
+	case (istsoil_hi)
+       call subgrid_get_info_natveg_hi(gi, &
+            npatches=npatches, ncols=ncols, nlunits=nlunits)
+    case default
+       write(iulog,*)' set_landunit_urban: unknown ltype: ', ltype
+       call endrun(msg=errMsg(sourcefile, __LINE__))
+    end select
+	
+    ! call subgrid_get_info_natveg(gi, &
+          ! npatches=npatches, ncols=ncols, nlunits=nlunits)
+!Edit by Lei Cai--end
+     wtlunit2gcell = wt_lunit(gi, ltype)
 
     nlunits_added = 0
     ncols_added = 0

@@ -1286,7 +1286,9 @@ contains
     ! each landunit type depending on l2g_scale_type
     !
     ! !USES:
-    use landunit_varcon, only : istsoil, istcrop, istice_mec, istdlak
+!Edit by Lei Cai--start
+    use landunit_varcon, only : istsoil, istsoil_li, istsoil_mi, istsoil_hi, istcrop, istice_mec, istdlak
+!Edit by Lei Cai--end
     use landunit_varcon, only : isturb_MIN, isturb_MAX, max_lunit
     !
     ! !ARGUMENTS:
@@ -1323,8 +1325,18 @@ contains
         scale_lookup(:) = 1.0_r8
      else if (l2g_scale_type == 'natveg') then
         scale_lookup(istsoil) = 1.0_r8
+!Edit by Lei Cai--start
+		scale_lookup(istsoil_li) = 1.0_r8
+		scale_lookup(istsoil_mi) = 1.0_r8
+		scale_lookup(istsoil_hi) = 1.0_r8
+!Edit by Lei Cai--end
      else if (l2g_scale_type == 'veg') then
         scale_lookup(istsoil) = 1.0_r8
+!Edit by Lei Cai--start
+		scale_lookup(istsoil_li) = 1.0_r8
+		scale_lookup(istsoil_mi) = 1.0_r8
+		scale_lookup(istsoil_hi) = 1.0_r8
+!Edit by Lei Cai--end
         scale_lookup(istcrop) = 1.0_r8
      else if (l2g_scale_type == 'ice') then
         scale_lookup(istice_mec) = 1.0_r8
@@ -1335,6 +1347,11 @@ contains
         scale_lookup(istdlak) = 1.0_r8
      else if (l2g_scale_type == 'veg_plus_lake') then
         scale_lookup(istsoil) = 1.0_r8
+!Edit by Lei Cai--start
+		scale_lookup(istsoil_li) = 1.0_r8
+		scale_lookup(istsoil_mi) = 1.0_r8
+		scale_lookup(istsoil_hi) = 1.0_r8
+!Edit by Lei Cai--end
         scale_lookup(istcrop) = 1.0_r8
         scale_lookup(istdlak) = 1.0_r8
      else

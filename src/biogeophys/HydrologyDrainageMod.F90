@@ -46,7 +46,9 @@ contains
     ! Calculates soil/snow hydrology with drainage (subsurface runoff)
     !
     ! !USES:
-    use landunit_varcon  , only : istwet, istsoil, istice_mec, istcrop
+!Edit by Lei Cai--start
+    use landunit_varcon  , only : istwet, istsoil, istsoil_li, istsoil_mi, istsoil_hi, istice_mec, istcrop
+!Edit by Lei Cai--end
     use column_varcon    , only : icol_roof, icol_road_imperv, icol_road_perv, icol_sunwall, icol_shadewall
     use clm_varcon       , only : denh2o, denice
     use clm_varctl       , only : use_vichydro
@@ -206,13 +208,20 @@ contains
          l = col%landunit(c)
 
          qflx_runoff(c) = qflx_drain(c) + qflx_surf(c)  + qflx_h2osfc_surf(c) + qflx_qrgwl(c) + qflx_drain_perched(c)
-
-         if ((lun%itype(l)==istsoil .or. lun%itype(l)==istcrop) .and. col%active(c)) then
+!Edit by Lei Cai--start
+         if ((lun%itype(l)==istsoil .or. lun%itype(l)==istsoil_li .or. &
+		      lun%itype(l)==istsoil_mi .or. lun%itype(l)==istsoil_hi .or. &
+			  lun%itype(l)==istcrop) .and. col%active(c)) then
+!Edit by Lei Cai--end
             qflx_runoff(c) = qflx_runoff(c) - qflx_irrig(c)
          end if
          if (lun%urbpoi(l)) then
             qflx_runoff_u(c) = qflx_runoff(c)
-         else if (lun%itype(l)==istsoil .or. lun%itype(l)==istcrop) then
+!Edit by Lei Cai--start
+         else if (lun%itype(l)==istsoil .or. lun%itype(l)==istsoil_li .or. &
+		          lun%itype(l)==istsoil_mi .or. lun%itype(l)==istsoil_hi .or. &
+				  lun%itype(l)==istcrop) then
+!Edit by Lei Cai--end
             qflx_runoff_r(c) = qflx_runoff(c)
          end if
 

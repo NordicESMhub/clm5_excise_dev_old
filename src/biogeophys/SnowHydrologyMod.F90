@@ -31,7 +31,11 @@ module SnowHydrologyMod
   use LandunitType    , only : lun
   use TopoMod, only : topo_type
   use ColumnType      , only : col
-  use landunit_varcon , only : istsoil, istdlak, istsoil, istwet, istice_mec, istcrop
+
+!Edit by Lei Cai--start
+  use landunit_varcon , only : istsoil, istdlak, istsoil_li, istsoil_mi, istsoil_hi, istwet, istice_mec, istcrop
+!Edit by Lei Cai--end
+
   use clm_time_manager, only : get_step_size, get_nstep
   !
   ! !PUBLIC TYPES:
@@ -879,7 +883,13 @@ contains
        do j = msn_old(c)+1,0
           ! use 0.01 to avoid runaway ice buildup
           if (h2osoi_ice(c,j) <= .01_r8) then
-             if (ltype(l) == istsoil .or. urbpoi(l) .or. ltype(l) == istcrop) then
+
+!Edit by Lei Cai--start
+             if (ltype(l) == istsoil .or. ltype(l) == istsoil_li .or. &
+			     ltype(l) == istsoil_mi .or. ltype(l) == istsoil_hi .or. &
+				 urbpoi(l) .or. ltype(l) == istcrop) then
+!Edit by Lei Cai--end
+
                 h2osoi_liq(c,j+1) = h2osoi_liq(c,j+1) + h2osoi_liq(c,j)
                 h2osoi_ice(c,j+1) = h2osoi_ice(c,j+1) + h2osoi_ice(c,j)
 
@@ -905,7 +915,11 @@ contains
                    mss_dst4(c,j+1)  = mss_dst4(c,j+1)   + mss_dst4(c,j)
                 end if
 
-             else if (ltype(l) /= istsoil .and. .not. urbpoi(l) .and. ltype(l) /= istcrop .and. j /= 0) then
+!Edit by Lei Cai--start
+             else if (ltype(l) /= istsoil .and. ltype(l) /= istsoil_li .and. &
+                      ltype(l) /= istsoil_mi .and. ltype(l) /= istsoil_hi &
+					  .and. .not. urbpoi(l) .and. ltype(l) /= istcrop .and. j /= 0) then
+!Edit by Lei Cai--end
 
                 h2osoi_liq(c,j+1) = h2osoi_liq(c,j+1) + h2osoi_liq(c,j)
                 h2osoi_ice(c,j+1) = h2osoi_ice(c,j+1) + h2osoi_ice(c,j)
@@ -929,7 +943,13 @@ contains
                    ! urban, soil or crop, the h2osoi_liq and h2osoi_ice associated with this layer is sent
                    ! to qflx_qrgwl later on in the code.  To keep track of this for the snow balance
                    ! error check, we add this to qflx_sl_top_soil here
-                   if (ltype(l) /= istsoil .and. ltype(l) /= istcrop .and. .not. urbpoi(l) .and. i == 0) then
+
+!Edit by Lei Cai--start
+                   if (ltype(l) /= istsoil .and. ltype(l) /= istsoil_li .and. &
+				       ltype(l) /= istsoil_mi .and. ltype(l) /= istsoil_hi &
+					   .and. ltype(l) /= istcrop .and. .not. urbpoi(l) .and. i == 0) then
+!Edit by Lei Cai--end
+
                       qflx_sl_top_soil(c) = (h2osoi_liq(c,i) + h2osoi_ice(c,i))/dtime
                    end if
 
@@ -1000,7 +1020,13 @@ contains
 
              if (h2osno(c) <= 0._r8) snow_depth(c) = 0._r8
              ! this is where water is transfered from layer 0 (snow) to layer 1 (soil)
-             if (ltype(l) == istsoil .or. urbpoi(l) .or. ltype(l) == istcrop) then
+
+!Edit by Lei Cai--start
+             if (ltype(l) == istsoil .or. ltype(l) == istsoil_li .or. &
+			     ltype(l) == istsoil_mi .or. ltype(l) == istsoil_hi .or. &
+				 urbpoi(l) .or. ltype(l) == istcrop) then
+!Edit by Lei Cai--end
+
                 h2osoi_liq(c,0) = 0.0_r8
                 h2osoi_liq(c,1) = h2osoi_liq(c,1) + zwliq(c)
              end if

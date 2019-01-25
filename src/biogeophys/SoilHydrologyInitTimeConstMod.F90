@@ -9,6 +9,11 @@ module SoilHydrologyInitTimeConstMod
   use shr_log_mod       , only : errMsg => shr_log_errMsg
   use decompMod         , only : bounds_type
   use SoilHydrologyType , only : soilhydrology_type
+
+!Edit by Lei Cai, from Hanna Lee--start: waterstatetype added
+  use WaterstateType  , only : waterstate_type
+!Edit by Lei Cai, from Hanna Lee--end
+
   use LandunitType      , only : lun                
   use ColumnType        , only : col                
   !
@@ -29,8 +34,9 @@ module SoilHydrologyInitTimeConstMod
   !
 contains
 
-  !-----------------------------------------------------------------------
-  subroutine SoilHydrologyInitTimeConst(bounds, soilhydrology_inst) 
+!Edit by Lei Cai--start
+  subroutine SoilHydrologyInitTimeConst(bounds, soilhydrology_inst, waterstate_inst) 
+!Edit by Lei Cai--end
     !
     ! !USES:
     use shr_const_mod   , only : shr_const_pi
@@ -52,6 +58,10 @@ contains
     type(bounds_type)        , intent(in)    :: bounds                                    
     type(soilhydrology_type) , intent(inout) :: soilhydrology_inst
     !
+!Edit by Lei Cai, from Hanna Lee--start: waterstate_inst added
+    type(waterstate_type)    , intent(inout) :: waterstate_inst
+!Edit by Lei Cai, from Hanna Lee--end
+
     ! !LOCAL VARIABLES:
     integer            :: p,c,j,l,g,lev,nlevs 
     integer            :: ivic,ivicstrt,ivicend   
@@ -317,7 +327,11 @@ contains
 
     end if ! end of if use_vichydro
 
-    associate(micro_sigma => col%micro_sigma)
+!Edit by Lei Cai, from Hanna Lee--start: micro_sigma to micro_sigma_ex
+!    associate(micro_sigma => col%micro_sigma)
+    associate(micro_sigma => waterstate_inst%micro_sigma_ex)
+!Edit by Lei Cai, from Hanna Lee--end
+
       do c = bounds%begc, bounds%endc
          
          ! determine h2osfc threshold ("fill & spill" concept)

@@ -51,7 +51,9 @@ contains
     ! about anywhere, really), you should use the pre-set col%hydrologically_active(c).
     !
     ! !USES:
-    use landunit_varcon, only : istsoil, istcrop
+!Edit by Lei Cai--start !KSA2019: make flexible
+    use landunit_varcon, only : istsoil, istsoil_li, istsoil_mi, istsoil_hi, istcrop
+!Edit by Lei Cai--end
     !
     ! !ARGUMENTS:
     logical :: hydrologically_active  ! function result
@@ -66,7 +68,11 @@ contains
     ! If we had an easy way to figure out which landunit a column was on based on
     ! col_itype (which would be very helpful!), then we wouldn't need lun_itype.
 
-    if (lun_itype == istsoil .or. lun_itype == istcrop) then
+!Edit by Lei Cai--start
+    if (lun_itype == istsoil .or. lun_itype == istsoil_li .or. &
+	    lun_itype == istsoil_mi .or. lun_itype == istsoil_hi .or. &
+		lun_itype == istcrop) then
+!Edit by Lei Cai--end
        hydrologically_active = .true.
     else if (col_itype == icol_road_perv) then
        hydrologically_active = .true.

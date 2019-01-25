@@ -342,7 +342,11 @@ contains
     !
     ! Initialize module surface albedos to reasonable values
     !
-    use landunit_varcon, only : istsoil, istcrop
+
+!Edit by Lei Cai--start
+    use landunit_varcon, only : istsoil, istsoil_li, istsoil_mi, istsoil_hi, istcrop
+!Edit by Lei Cai--end
+
     !
     ! !ARGUMENTS:
     class(solarabs_type) :: this

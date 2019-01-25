@@ -220,7 +220,9 @@ contains
      use shr_infnan_mod  , only : nan => shr_infnan_nan, assignment(=)
      use decompMod       , only : bounds_type
      use clm_varcon      , only : denh2o, denice
-     use landunit_varcon , only : istice_mec, istwet, istsoil, istcrop
+!Edit by Lei Cai--start
+     use landunit_varcon , only : istice_mec, istwet, istsoil, istsoil_li, istsoil_mi, istsoil_hi, istcrop
+!Edit by Lei Cai--end
      use column_varcon   , only : icol_roof, icol_sunwall, icol_shadewall
      use column_varcon   , only : icol_road_imperv, icol_road_perv
      use ColumnType      , only : col
@@ -254,7 +256,13 @@ contains
           c = filter_nolakec(fc)
           l = col%landunit(c)   
           if (lun%itype(l)/=istwet .AND. lun%itype(l)/=istice_mec) then
-             if (lun%itype(l) == istsoil .or. lun%itype(l) == istcrop) then
+
+!Edit by Lei Cai--start
+             if (lun%itype(l) == istsoil .or. lun%itype(l) == istsoil_li .or. &
+			     lun%itype(l) == istsoil_mi .or. lun%itype(l) == istsoil_hi .or. &
+				 lun%itype(l) == istcrop) then
+!Edit by Lei Cai--end
+
                 wx   = (h2osoi_liq(c,1)/denh2o+h2osoi_ice(c,1)/denice)/col%dz(c,1)
                 fac  = min(1._r8, wx/watsat(c,1))
                 fac  = max( fac, 0.01_r8 )
@@ -317,7 +325,9 @@ contains
      use shr_infnan_mod  , only : nan => shr_infnan_nan, assignment(=)
      use decompMod       , only : bounds_type
      use clm_varcon      , only : denh2o, denice
-     use landunit_varcon , only : istice_mec, istwet, istsoil, istcrop
+!Edit by Lei Cai--start
+     use landunit_varcon , only : istice_mec, istwet, istsoil, istsoil_li, istsoil_mi, istsoil_hi, istcrop
+!Edit by Lei Cai--end
      use column_varcon   , only : icol_roof, icol_sunwall, icol_shadewall
      use column_varcon   , only : icol_road_imperv, icol_road_perv
      use ColumnType      , only : col
@@ -357,7 +367,13 @@ contains
       c = filter_nolakec(fc)
       l = col%landunit(c)  
       if (lun%itype(l)/=istwet .AND. lun%itype(l)/=istice_mec) then
-         if (lun%itype(l) == istsoil .or. lun%itype(l) == istcrop) then
+
+!Edit by Lei Cai--start
+         if (lun%itype(l) == istsoil .or. lun%itype(l) == istsoil_li .or. &
+		     lun%itype(l) == istsoil_mi .or. lun%itype(l) == istsoil_hi .or. &
+			 lun%itype(l) == istcrop) then
+!Edit by Lei Cai--end
+
             vwc_liq = max(h2osoi_liq(c,1),1.0e-6_r8)/(dz(c,1)*denh2o)
 ! eff_porosity not calculated til SoilHydrology
              eff_por_top = max(0.01_r8,watsat(c,1)-min(watsat(c,1), h2osoi_ice(c,1)/(dz(c,1)*denice)))

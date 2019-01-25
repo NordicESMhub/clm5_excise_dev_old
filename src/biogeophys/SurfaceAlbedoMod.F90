@@ -10,7 +10,11 @@ module SurfaceAlbedoMod
   use shr_kind_mod      , only : r8 => shr_kind_r8
   use shr_log_mod       , only : errMsg => shr_log_errMsg
   use decompMod         , only : bounds_type
-  use landunit_varcon   , only : istsoil, istcrop, istdlak
+
+!Edit by Lei Cai--start
+  use landunit_varcon   , only : istsoil, istsoil_li, istsoil_mi, istsoil_hi, istcrop, istdlak
+!Edit by Lei Cai--end
+
   use clm_varcon        , only : grlnd, namep
   use clm_varpar        , only : numrad, nlevcan, nlevsno, nlevcan
   use clm_varctl        , only : fsurdat, iulog, use_snicar_frc, use_SSRE
@@ -734,9 +738,14 @@ contains
     do fp = 1,num_nourbanp
        p = filter_nourbanp(fp)
           if (coszen_patch(p) > 0._r8) then
+!Edit by Lei Cai--start
              if ((lun%itype(patch%landunit(p)) == istsoil .or.  &
+			      lun%itype(patch%landunit(p)) == istsoil_li .or. &
+				  lun%itype(patch%landunit(p)) == istsoil_mi .or. &
+				  lun%itype(patch%landunit(p)) == istsoil_hi .or. &
                   lun%itype(patch%landunit(p)) == istcrop     ) &
                  .and. (elai(p) + esai(p)) > 0._r8) then
+!Edit by Lei Cai--end
                     num_vegsol = num_vegsol + 1
                     filter_vegsol(num_vegsol) = p
              else
@@ -1047,7 +1056,12 @@ contains
           if (coszen(c) > 0._r8) then
              l = col%landunit(c)
 
-             if (lun%itype(l) == istsoil .or. lun%itype(l) == istcrop)  then ! soil
+!edit by Lei Cai--start
+             if (lun%itype(l) == istsoil .or. lun%itype(l) == istsoil_li .or. &
+			     lun%itype(l) == istsoil_mi .or. lun%itype(l) == istsoil_hi .or. &
+				 lun%itype(l) == istcrop)  then ! soil
+!Edit by Lei Cai--end
+
                 inc    = max(0.11_r8-0.40_r8*h2osoi_vol(c,1), 0._r8)
                 soilcol = isoicol(c)
                 ! changed from local variable to clm_type:

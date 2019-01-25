@@ -657,7 +657,9 @@ contains
       ! inconsistencies between the restart file and the surface dataset.
       !
       ! !USES:
-      use landunit_varcon, only : istsoil
+!Edit by Lei Cai--start
+      use landunit_varcon, only : istsoil, istsoil_li, istsoil_mi, istsoil_hi
+!Edit by Lei Cai--end
       use clm_varctl, only : iulog
       !
       ! !ARGUMENTS:
@@ -674,7 +676,10 @@ contains
       
       do p = bounds%begp, bounds%endp
          l = patch%landunit(p)
-         if (lun%itype(l) == istsoil) then
+!Edit by Lei Cai--start
+         if (lun%itype(l) == istsoil .or. lun%itype(l) == istsoil_li .or. &
+		     lun%itype(l) == istsoil_mi .or. lun%itype(l) ==istsoil_hi) then
+!Edit by Lei Cai--end
             diff = abs(patch%wtlunit(p) - pft_wtlunit_before_rest_read(p))
             if (diff > tol .and. patch%wtgcell(p) > 1.0e-16_r8) then
                write(iulog,*) 'ERROR: PATCH weights are SIGNIFICANTLY different between :'

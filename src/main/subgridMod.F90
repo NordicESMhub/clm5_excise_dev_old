@@ -15,7 +15,10 @@ module subgridMod
   use spmdMod        , only : masterproc
   use abortutils     , only : endrun
   use clm_varctl     , only : iulog
-  use clm_instur     , only : wt_lunit, wt_nat_patch, urban_valid, wt_cft
+!Edit by Lei Cai--start
+  use clm_instur     , only : wt_lunit, wt_nat_patch, urban_valid,  wt_cft
+  use landunit_varcon, only : istsoil, istcrop, istsoil_li, istsoil_mi, istsoil_hi, istdlak, istwet, isturb_tbd, isturb_hd, isturb_md
+!Edit by Lei Cai--end
   use landunit_varcon, only : istcrop, istdlak, istwet, isturb_tbd, isturb_hd, isturb_md
   use glcBehaviorMod , only : glc_behavior_type
   use FatesInterfaceMod, only : fates_maxElementsPerSite
@@ -28,7 +31,13 @@ module subgridMod
   public :: subgrid_get_gcellinfo   ! Obtain gridcell properties, summed across all landunits
 
   ! Routines to get info for each landunit:
-  public :: subgrid_get_info_natveg
+  
+!Edit by Lei Cai--start
+  public :: subgrid_get_info_natveg_ni
+  public :: subgrid_get_info_natveg_li
+  public :: subgrid_get_info_natveg_mi
+  public :: subgrid_get_info_natveg_hi
+!Edit by Lei Cai--end
   public :: natveg_patch_exists ! returns true if the given natural veg patch should be created in memory
   public :: subgrid_get_info_cohort
   public :: subgrid_get_info_urban_tbd
@@ -41,6 +50,9 @@ module subgridMod
   public :: crop_patch_exists ! returns true if the given crop patch should be created in memory
 
   ! !PRIVATE MEMBER FUNCTIONS:
+!lc  !KSA2019: not sure if this should be here?
+  private :: subgrid_get_info_natveg
+!lc
   private :: subgrid_get_info_urban
 
   character(len=*), parameter, private :: sourcefile = &
@@ -80,9 +92,19 @@ contains
     ncols    = 0
     nlunits  = 0
     ncohorts = 0
-
-    call subgrid_get_info_natveg(gi, npatches_temp, ncols_temp, nlunits_temp)
+!Edit by Lei Cai--start
+    call subgrid_get_info_natveg_ni(gi, npatches_temp, ncols_temp, nlunits_temp)
     call accumulate_counters()
+
+    call subgrid_get_info_natveg_li(gi, npatches_temp, ncols_temp, nlunits_temp)
+    call accumulate_counters()
+	
+    call subgrid_get_info_natveg_mi(gi, npatches_temp, ncols_temp, nlunits_temp)
+    call accumulate_counters()
+	
+    call subgrid_get_info_natveg_hi(gi, npatches_temp, ncols_temp, nlunits_temp)
+    call accumulate_counters()
+!Edit by Lei Cai--end
 
     call subgrid_get_info_urban_tbd(gi, npatches_temp, ncols_temp, nlunits_temp)
     call accumulate_counters()
@@ -123,7 +145,92 @@ contains
   end subroutine subgrid_get_gcellinfo
 
   !-----------------------------------------------------------------------
-  subroutine subgrid_get_info_natveg(gi, npatches, ncols, nlunits)
+!Edit by Lei Cai--start
+  subroutine subgrid_get_info_natveg_ni(gi, npatches, ncols, nlunits)
+    !
+    ! !DESCRIPTION:
+    ! Obtain properties for natveg ni landunit in this grid cell
+    !
+    ! !ARGUMENTS:
+    integer, intent(in)  :: gi        ! grid cell index
+    integer, intent(out) :: npatches  ! number of natveg ni patches in this grid cell
+    integer, intent(out) :: ncols     ! number of natveg ni columns in this grid cell
+    integer, intent(out) :: nlunits   ! number of natveg ni landunits in this grid cell
+    !
+    ! !LOCAL VARIABLES:
+
+    character(len=*), parameter :: subname = 'subgrid_get_info_natveg_ni'
+    !-----------------------------------------------------------------------
+
+    call subgrid_get_info_natveg(gi, istsoil, npatches, ncols, nlunits)
+
+  end subroutine subgrid_get_info_natveg_ni
+  
+    !-----------------------------------------------------------------------
+  subroutine subgrid_get_info_natveg_li(gi, npatches, ncols, nlunits)
+    !
+    ! !DESCRIPTION:
+    ! Obtain properties for natveg li landunit in this grid cell
+    !
+    ! !ARGUMENTS:
+    integer, intent(in)  :: gi        ! grid cell index
+    integer, intent(out) :: npatches  ! number of natveg li patches in this grid cell
+    integer, intent(out) :: ncols     ! number of natveg li columns in this grid cell
+    integer, intent(out) :: nlunits   ! number of natveg li landunits in this grid cell
+    !
+    ! !LOCAL VARIABLES:
+
+    character(len=*), parameter :: subname = 'subgrid_get_info_natveg_li'
+    !-----------------------------------------------------------------------
+
+    call subgrid_get_info_natveg(gi, istsoil_li, npatches, ncols, nlunits)
+
+  end subroutine subgrid_get_info_natveg_li
+  
+    !-----------------------------------------------------------------------
+  subroutine subgrid_get_info_natveg_mi(gi, npatches, ncols, nlunits)
+    !
+    ! !DESCRIPTION:
+    ! Obtain properties for natveg mi landunit in this grid cell
+    !
+    ! !ARGUMENTS:
+    integer, intent(in)  :: gi        ! grid cell index
+    integer, intent(out) :: npatches  ! number of natveg mi patches in this grid cell
+    integer, intent(out) :: ncols     ! number of natveg mi columns in this grid cell
+    integer, intent(out) :: nlunits   ! number of natveg mi landunits in this grid cell
+    !
+    ! !LOCAL VARIABLES:
+
+    character(len=*), parameter :: subname = 'subgrid_get_info_natveg_mi'
+    !-----------------------------------------------------------------------
+
+    call subgrid_get_info_natveg(gi, istsoil_mi, npatches, ncols, nlunits)
+
+  end subroutine subgrid_get_info_natveg_mi
+
+    !-----------------------------------------------------------------------
+  subroutine subgrid_get_info_natveg_hi(gi, npatches, ncols, nlunits)
+    !
+    ! !DESCRIPTION:
+    ! Obtain properties for natveg hi landunit in this grid cell
+    !
+    ! !ARGUMENTS:
+    integer, intent(in)  :: gi        ! grid cell index
+    integer, intent(out) :: npatches  ! number of natveg hi patches in this grid cell
+    integer, intent(out) :: ncols     ! number of natveg hi columns in this grid cell
+    integer, intent(out) :: nlunits   ! number of natveg hi landunits in this grid cell
+    !
+    ! !LOCAL VARIABLES:
+
+    character(len=*), parameter :: subname = 'subgrid_get_info_natveg_hi'
+    !-----------------------------------------------------------------------
+
+    call subgrid_get_info_natveg(gi, istsoil_hi, npatches, ncols, nlunits)
+
+  end subroutine subgrid_get_info_natveg_hi
+  
+  !-----------------------------------------------------------------------
+  subroutine subgrid_get_info_natveg(gi, ltype, npatches, ncols, nlunits)
     !
     ! !DESCRIPTION:
     ! Obtain properties for natural vegetated landunit in this grid cell
@@ -133,6 +240,7 @@ contains
     !
     ! !ARGUMENTS:
     integer, intent(in)  :: gi        ! grid cell index
+	integer, intent(in)  :: ltype     ! landunit type (istsoil_li, etc.)
     integer, intent(out) :: npatches  ! number of nat veg patches in this grid cell
     integer, intent(out) :: ncols     ! number of nat veg columns in this grid cell
     integer, intent(out) :: nlunits   ! number of nat veg landunits in this grid cell
@@ -165,6 +273,7 @@ contains
     end if
 
   end subroutine subgrid_get_info_natveg
+!Edit by Lei Cai--end	
 
   !-----------------------------------------------------------------------
   function natveg_patch_exists(gi, pft) result(exists)

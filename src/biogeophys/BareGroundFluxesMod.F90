@@ -47,7 +47,9 @@ contains
     use clm_varpar           , only : nlevgrnd
     use clm_varcon           , only : cpair, vkc, grav, denice, denh2o
     use clm_varctl           , only : use_lch4
-    use landunit_varcon      , only : istsoil, istcrop
+!Edit by Lei Cai--start
+    use landunit_varcon      , only : istsoil, istsoil_li, istsoil_mi, istsoil_hi, istcrop
+!Edit by Lei Cai--end
     use FrictionVelocityMod  , only : FrictionVelocity, MoninObukIni
     use QSatMod              , only : QSat
     use SurfaceResistanceMod , only : do_soilevap_beta,do_soil_resistance_sl14
@@ -385,7 +387,11 @@ contains
 
          rh_ref2m(p) = min(100._r8, q_ref2m(p) / qsat_ref2m * 100._r8)
 
-         if (lun%itype(l) == istsoil .or. lun%itype(l) == istcrop) then
+!Edit by Lei Cai--start
+         if (lun%itype(l) == istsoil .or. lun%itype(l) == istsoil_li .or. &
+		     lun%itype(l) == istsoil_mi .or. lun%itype(l) == istsoil_hi .or. &
+			 lun%itype(l) == istcrop) then
+!Edit by Lei Cai--end
             rh_ref2m_r(p) = rh_ref2m(p)
             t_ref2m_r(p) = t_ref2m(p)
          end if
@@ -408,7 +414,11 @@ contains
                call SwampCoolEff(tc_ref2m(p), wb_ref2m(p), swmp80_ref2m(p), swmp65_ref2m(p))
             end if
   
-            if (lun%itype(l) == istsoil .or. lun%itype(l) == istcrop) then
+!Edit by Lei Cai--start
+         if (lun%itype(l) == istsoil .or. lun%itype(l) == istsoil_li .or. &
+		     lun%itype(l) == istsoil_mi .or. lun%itype(l) == istsoil_hi .or. &
+			 lun%itype(l) == istcrop) then
+!Edit by Lei Cai--end
               wbt_ref2m_r(p)            = wbt_ref2m(p)
               nws_hi_ref2m_r(p)         = nws_hi_ref2m(p)
               appar_temp_ref2m_r(p)     = appar_temp_ref2m(p)

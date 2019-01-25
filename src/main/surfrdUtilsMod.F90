@@ -110,7 +110,9 @@ contains
     use clm_instur      , only : wt_lunit, wt_nat_patch, fert_cft
     use clm_varpar      , only : cft_size, natpft_size
     use pftconMod       , only : nc3crop
-    use landunit_varcon , only : istsoil, istcrop
+!Edit by Lei Cai--start
+    use landunit_varcon , only : istsoil, istsoil_li, istsoil_mi, istsoil_hi, istcrop
+!Edit by Lei Cai--end
     ! !ARGUMENTS:
     implicit none
     integer          , intent(in)    :: begg, endg
@@ -126,10 +128,16 @@ contains
     do g = begg, endg
        if ( wt_lunit(g,istcrop) > 0.0_r8 )then
           ! Move CFT over to PFT and do weighted average of the crop and soil parts
-          wt_nat_patch(g,:) = wt_nat_patch(g,:) * wt_lunit(g,istsoil)
+!Edit by Lei Cai--start
+          wt_nat_patch(g,:) = wt_nat_patch(g,:) * (wt_lunit(g,istsoil) + wt_lunit(g,istsoil_li) + &
+		                      wt_lunit(g,istsoil_mi) + wt_lunit(g,istsoil_hi))
+!Edit by Lei Cai--end
           wt_cft(g,:)       = wt_cft(g,:) * wt_lunit(g,istcrop)
           wt_nat_patch(g,nc3crop:) = wt_cft(g,:)      ! Add crop CFT's to end of natural veg PFT's
-          wt_lunit(g,istsoil) = (wt_lunit(g,istsoil) + wt_lunit(g,istcrop)) ! Add crop landunit to soil landunit
+!Edit by Lei Cai--start
+          wt_lunit(g,istsoil) = (wt_lunit(g,istsoil) + wt_lunit(g,istsoil_li) + wt_lunit(g,istsoil_mi) &
+		                         + wt_lunit(g,istsoil_hi) + wt_lunit(g,istcrop)) ! Add crop landunit to soil landunit
+!Edit by Lei Cai--end
           wt_nat_patch(g,:)   =  wt_nat_patch(g,:) / wt_lunit(g,istsoil)
           wt_lunit(g,istcrop) = 0.0_r8                ! Zero out crop CFT's
        else

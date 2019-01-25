@@ -46,7 +46,9 @@ contains
     ! !USES:
     use clm_time_manager , only : get_step_size
     use clm_varcon       , only : hvap, cpair, grav, vkc, tfrz, sb 
-    use landunit_varcon  , only : istsoil, istcrop
+!Edit by Lei Cai--start	
+    use landunit_varcon  , only : istsoil, istsoil_li, istsoil_mi, istsoil_hi, istcrop
+!Edit by Lei Cai--end
     use column_varcon    , only : icol_roof, icol_sunwall, icol_shadewall, icol_road_perv
     use subgridAveMod    , only : p2c
     !
@@ -287,7 +289,12 @@ contains
                  - emg(c)*sb*lw_grnd - emg(c)*sb*t_grnd0(c)**3*(4._r8*tinc(c)) &
                  - (eflx_sh_grnd(p)+qflx_evap_soi(p)*htvp(c))
 
-            if (lun%itype(l) == istsoil .or. lun%itype(l) == istcrop) then
+!Edit by Lei Cai--start
+            if (lun%itype(l) == istsoil .or. lun%itype(l) == istsoil_li .or. &
+			    lun%itype(l) == istsoil_mi .or. lun%itype(l) == istsoil_hi .or. &
+				lun%itype(l) == istcrop) then
+!Edit by Lei Cai--end
+
                eflx_soil_grnd_r(p) = eflx_soil_grnd(p)
             end if
          else
@@ -311,7 +318,13 @@ contains
          eflx_sh_tot(p) = eflx_sh_veg(p) + eflx_sh_grnd(p)
          qflx_evap_tot(p) = qflx_evap_veg(p) + qflx_evap_soi(p)
          eflx_lh_tot(p)= hvap*qflx_evap_veg(p) + htvp(c)*qflx_evap_soi(p)
-         if (lun%itype(l) == istsoil .or. lun%itype(l) == istcrop) then
+
+!Edit by Lei Cai--start
+            if (lun%itype(l) == istsoil .or. lun%itype(l) == istsoil_li .or. &
+			    lun%itype(l) == istsoil_mi .or. lun%itype(l) == istsoil_hi .or. &
+				lun%itype(l) == istcrop) then
+!Edit by Lei Cai--end
+    
             eflx_lh_tot_r(p)= eflx_lh_tot(p)
             eflx_sh_tot_r(p)= eflx_sh_tot(p)
          else if (lun%urbpoi(l)) then
@@ -423,7 +436,13 @@ contains
              if(frac_veg_nosno(p).eq.0)  t_skin_patch(p) = sqrt(sqrt(lw_grnd))
 
             eflx_lwrad_net(p) = eflx_lwrad_out(p) - forc_lwrad(c)
-            if (lun%itype(l) == istsoil .or. lun%itype(l) == istcrop) then
+
+!Edit by Lei Cai--start
+            if (lun%itype(l) == istsoil .or. lun%itype(l) == istsoil_li .or. &
+			    lun%itype(l) == istsoil_mi .or. lun%itype(l) == istsoil_hi .or. &
+				lun%itype(l) == istcrop) then
+!Edit by Lei Cai--end
+
                eflx_lwrad_net_r(p) = eflx_lwrad_out(p) - forc_lwrad(c)
                eflx_lwrad_out_r(p) = eflx_lwrad_out(p)
             end if

@@ -99,13 +99,16 @@ contains
     ! !LOCAL VARIABLES:
     real(r8) :: liquid_mass(bounds%begc:bounds%endc)  ! kg m-2
     real(r8) :: ice_mass(bounds%begc:bounds%endc)     ! kg m-2
+!Edit by Lei Cai--start
+    real(r8) :: excess_ice(bounds%begc:bounds%endc)
+!Edit by Lei Cai--end
     integer  :: fc, c
 
     character(len=*), parameter :: subname = 'ComputeWaterMassNonLake'
     !-----------------------------------------------------------------------
 
     SHR_ASSERT_ALL((ubound(water_mass) == (/bounds%endc/)), errMsg(sourcefile, __LINE__))
-
+!Edit by Lei Cai--start
     call ComputeLiqIceMassNonLake( &
          bounds = bounds, &
          num_nolakec = num_nolakec, &
@@ -113,7 +116,9 @@ contains
          soilhydrology_inst = soilhydrology_inst, &
          waterstate_inst = waterstate_inst, &
          liquid_mass = liquid_mass(bounds%begc:bounds%endc), &
-         ice_mass = ice_mass(bounds%begc:bounds%endc))
+         ice_mass = ice_mass(bounds%begc:bounds%endc), &
+	 excess_ice = excess_ice(bounds%begc:bounds%endc))
+!Edit by Lei Cai--end
 
     do fc = 1, num_nolakec
        c = filter_nolakec(fc)
@@ -163,8 +168,10 @@ contains
 
 
   !-----------------------------------------------------------------------
+!Edit by Lei Cai, from Hanna Lee-start
   subroutine ComputeLiqIceMassNonLake(bounds, num_nolakec, filter_nolakec, &
-       soilhydrology_inst, waterstate_inst, liquid_mass, ice_mass)
+       soilhydrology_inst, waterstate_inst, liquid_mass, ice_mass, excess_ice)
+!Edit by Lei Cai, from Hanna Lee--end
     !
     ! !DESCRIPTION:
     ! Compute total water mass for all non-lake columns, separated into liquid and ice
@@ -180,6 +187,9 @@ contains
     type(waterstate_type)    , intent(in)    :: waterstate_inst
     real(r8)                 , intent(inout) :: liquid_mass( bounds%begc: ) ! computed liquid water mass (kg m-2)
     real(r8)                 , intent(inout) :: ice_mass( bounds%begc: )    ! computed ice mass (kg m-2)
+!Edit by Lei Cai--start
+    real(r8)                 , intent(inout) :: excess_ice( bounds%begc: )    ! excess ice
+!Edit by Lei Cai--end
     !
     ! !LOCAL VARIABLES:
     integer :: c, j, fc                  ! indices
@@ -193,10 +203,17 @@ contains
 
     SHR_ASSERT_ALL((ubound(liquid_mass) == (/bounds%endc/)), errMsg(sourcefile, __LINE__))
     SHR_ASSERT_ALL((ubound(ice_mass) == (/bounds%endc/)), errMsg(sourcefile, __LINE__))
+!Edit by Lei Cai--start
+    SHR_ASSERT_ALL((ubound(excess_ice) == (/bounds%endc/)), errMsg(sourcefile, __LINE__))
+!Edit by Lei Cai
 
     associate( &
          snl          =>    col%snl                        , & ! Input:  [integer  (:)   ]  negative number of snow layers
-         
+
+!Edit by Lei Cai, from Hanna Lee--start
+         excess_ice   => waterstate_inst%excess_ice_col    , & ! Input:  [real(r8) (:)   ]  excess soil ice
+!Edit by Lei Cai, from Hanna Lee--end
+       
          h2osfc       =>    waterstate_inst%h2osfc_col     , & ! Input:  [real(r8) (:)   ]  surface water (mm)
          h2osno       =>    waterstate_inst%h2osno_col     , & ! Input:  [real(r8) (:)   ]  snow water (mm H2O)
          h2ocan_patch =>    waterstate_inst%h2ocan_patch   , & ! Input:  [real(r8) (:)   ]  canopy water (mm H2O)
@@ -243,7 +260,11 @@ contains
           ! Loop over snow layers
           do j = snl(c)+1,0
              liquid_mass(c) = liquid_mass(c) + h2osoi_liq(c,j)
-             ice_mass(c) = ice_mass(c) + h2osoi_ice(c,j)
+
+!Edit by Lei Cai, from Hanna Lee--start
+             ice_mass(c) = ice_mass(c) + h2osoi_ice(c,j) + excess_ice(c,j)
+!Edit by Lei Cai, from Hanna Lee--end
+
           end do
        else if (h2osno(c) /= 0._r8) then
           ! No explicit snow layers, but there may still be some ice in h2osno (there is
@@ -291,7 +312,11 @@ contains
 
           if (has_h2o) then
              liquid_mass(c) = liquid_mass(c) + h2osoi_liq(c,j)
-             ice_mass(c) = ice_mass(c) + h2osoi_ice(c,j)
+
+!Edit by Lei Cai, from Hanna Lee--start
+             ice_mass(c) = ice_mass(c) + h2osoi_ice(c,j) + excess_ice(c,j)
+!Edit by Lei Cai, from Hanna Lee-end
+
           end if
        end do
     end do

@@ -662,7 +662,11 @@ contains
   subroutine InitCold(this, bounds)
     !
     ! !USES:
-    use landunit_varcon, only : istsoil, istcrop
+
+!Edit by Lei Cai--start
+    use landunit_varcon, only : istsoil, istsoil_li, istsoil_mi, istsoil_hi, istcrop
+!Edit by Lei Cai--end
+
     !
     ! !ARGUMENTS:
     class(waterflux_type) :: this
@@ -692,7 +696,13 @@ contains
     ! needed for CNNLeaching 
     do c = bounds%begc, bounds%endc
        l = col%landunit(c)
-       if (lun%itype(l) == istsoil .or. lun%itype(l) == istcrop) then
+
+!Edit by Lei Cai--start
+       if (lun%itype(l) == istsoil .or. lun%itype(l) == istsoil_li .or. &
+       	       lun%itype(l) == istsoil_mi .or. lun%itype(l) == istsoil_hi .or. &
+	       lun%itype(l) == istcrop) then
+!Edit by Lei Cai--end
+
           this%qflx_drain_col(c) = 0._r8
           this%qflx_surf_col(c)  = 0._r8
        end if

@@ -12,6 +12,11 @@ module ColumnType
   !   4  => (istice_mec)       land ice (multiple elevation classes)   
   !   5  => (istdlak)          deep lake
   !   6  => (istwet)           wetland
+!Edit by Lei Cai--start !KSA2019: make flexible in terms of number, or exclude here?
+  !  10  => (istsoil_li) soil (natural vegetation with low excess ice)
+  !  11  => (istsoil_mi) soil (natural vegetation with mid excess ice)
+  !  12  => (istsoil_hi) soil (natural vegetation with high excess ice)
+!Edit by Lei Cai--end
   !   71 => (icol_roof)        urban roof
   !   72 => (icol_sunwall)     urban sunwall
   !   73 => (icol_shadewall)   urban shadewall

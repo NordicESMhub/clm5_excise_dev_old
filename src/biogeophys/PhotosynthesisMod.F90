@@ -855,7 +855,9 @@ contains
     ! Time step initialization
     !
     ! !USES:
-    use landunit_varcon, only : istsoil, istcrop, istice_mec, istwet
+!Edit by Lei Cai--start
+    use landunit_varcon, only : istsoil, istsoil_li, istsoil_mi, istsoil_hi, istcrop, istice_mec, istwet
+!Edit by Lei Cai--end
     !
     ! !ARGUMENTS:
     class(photosyns_type) :: this
@@ -894,7 +896,11 @@ contains
              this%c14_psnsha_patch(p) = 0._r8
           endif
        end if
-       if (lun%itype(l) == istsoil .or. lun%itype(l) == istcrop &
+!Edit by Lei Cai--start
+       if (lun%itype(l) == istsoil .or. lun%itype(l) == istsoil_li &
+	       .or. lun%itype(l) == istsoil_mi .or. lun%itype(l) == istsoil_hi &
+		    .or. lun%itype(l) == istcrop &
+!Edit by Lei Cai--end
             .or. lun%itype(l) == istice_mec &
             .or. lun%itype(l) == istwet) then
           if (use_c13) then
