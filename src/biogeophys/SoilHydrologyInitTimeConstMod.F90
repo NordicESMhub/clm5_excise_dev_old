@@ -328,8 +328,8 @@ contains
     end if ! end of if use_vichydro
 
 !Edit by Lei Cai, from Hanna Lee--start: micro_sigma to micro_sigma_ex
-!    associate(micro_sigma => col%micro_sigma)
-    associate(micro_sigma => waterstate_inst%micro_sigma_ex)
+    associate(micro_sigma => col%micro_sigma)	     	!apply this line if not want to apply microtopography change after excess ice melt
+!    associate(micro_sigma => waterstate_inst%micro_sigma_ex)  !apply this line if want to apply microtopography change after excess ice melt   
 !Edit by Lei Cai, from Hanna Lee--end
 
       do c = bounds%begc, bounds%endc

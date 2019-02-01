@@ -873,9 +873,9 @@ contains
             if (lun%itype(l) == istsoil_li) then
                nlevs = nlevgrnd
                do j = 1, nlevs
-!                  if (col%zi(c,j) >= 1._r8 .and. col%zi(c,j) <= 3._r8) then
-                  if (col%zi(c,j) <= 4._r8) then
-                     this%excess_ice_col(c,j) = col%dz(c,j)*denice*0.05    !low excess ice (5%)
+                  if (col%zi(c,j) >= 1._r8 .and. col%zi(c,j) <= 3._r8) then
+!                  if (col%zi(c,j) <= 4._r8) then
+                     this%excess_ice_col(c,j) = col%dz(c,j)*denice*0.05    !low excess ice (5% and tunable)
                   else
                      this%excess_ice_col(c,j) = 0.0_r8
                   endif
@@ -884,9 +884,9 @@ contains
                end do
 			else if (lun%itype(l) == istsoil_mi) then
 			   do j = 1, nlevs
-!                  if (col%zi(c,j) >= 1._r8 .and. col%zi(c,j) <= 3._r8) then
-                  if (col%zi(c,j) <= 4._r8) then
-                     this%excess_ice_col(c,j) = col%dz(c,j)*denice*0.15   ! medium excess ice (15%)
+                  if (col%zi(c,j) >= 1._r8 .and. col%zi(c,j) <= 3._r8) then
+!                  if (col%zi(c,j) <= 4._r8) then
+                     this%excess_ice_col(c,j) = col%dz(c,j)*denice*0.15   ! medium excess ice (15% and tunable)	
                   else
                      this%excess_ice_col(c,j) = 0.0_r8
                   endif
@@ -895,9 +895,9 @@ contains
                end do
 			else if (lun%itype(l) == istsoil_hi) then
 			    do j = 1, nlevs
-!                  if (col%zi(c,j) >= 1._r8 .and. col%zi(c,j) <= 3._r8) then
-                  if (col%zi(c,j) <= 4._r8) then
-                     this%excess_ice_col(c,j) = col%dz(c,j)*denice*0.25    !high excess ice (25%)
+                  if (col%zi(c,j) >= 1._r8 .and. col%zi(c,j) <= 3._r8) then
+!                  if (col%zi(c,j) <= 4._r8) then
+                     this%excess_ice_col(c,j) = col%dz(c,j)*denice*0.90    !high excess ice (25% and tunable)
                   else
                      this%excess_ice_col(c,j) = 0.0_r8
                   endif
@@ -1009,6 +1009,17 @@ contains
     if (flag=='read' .and. .not. readvar) then
        this%h2osfc_col(bounds%begc:bounds%endc) = 0.0_r8
     end if
+!Edit by Lei Cai--start
+    call restartvar(ncid=ncid, flag=flag, varname='EXCESS_ICE', xtype=ncd_double,  &
+         dim1name='column', dim2name='levtot', switchdim=.true., &
+         long_name='excess soil ice (vegetated landunits only)', units='kg/m2', &
+         interpinic_flag='interp', readvar=readvar, data=this%excess_ice_col)
+		 
+    call restartvar(ncid=ncid, flag=flag, varname='EXICE_MELT', xtype=ncd_double,  &
+         dim1name='column', &
+         long_name='melting of excess soil ice (vegetated landunits only)', units='m', &
+         interpinic_flag='interp', readvar=readvar, data=this%exice_melt)
+!Edit by Lei Cai--end	
 
     call restartvar(ncid=ncid, flag=flag, varname='H2OSNO', xtype=ncd_double,  &
          dim1name='column', &

@@ -808,7 +808,7 @@ contains
                 d=0.0
 
 !Edit by Lei Cai, from Hanna Lee--start
-                micro_sigma(c) = micro_sigma_ex(c)
+!                micro_sigma(c) = micro_sigma_ex(c)    !Comment it if do not want to apply the microtopography change after excess ice melt KSA2019
 !Edit by Lei Cai, from Hanna Lee--end
 
                 sigma=1.0e3 * micro_sigma(c) ! convert to mm
