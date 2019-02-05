@@ -787,7 +787,11 @@ contains
          if (.not. lun%lakpoi(l)) then  !not lake
 
             ! volumetric water
-            if (lun%itype(l) == istsoil .or. lun%itype(l) == istcrop) then
+!Edit by Lei Cai--start
+            if (lun%itype(l) == istsoil .or. lun%itype(l) == istsoil_li .or. &
+			lun%itype(l) == istsoil_mi .or. lun%itype(l) == istsoil_hi .or. &
+			lun%itype(l) == istcrop) then
+!Edit by Lei Cai--end
                nlevs = nlevgrnd
                do j = 1, nlevs
                   if (use_bedrock) then
@@ -875,7 +879,7 @@ contains
                do j = 1, nlevs
                   if (col%zi(c,j) >= 1._r8 .and. col%zi(c,j) <= 3._r8) then
 !                  if (col%zi(c,j) <= 4._r8) then
-                     this%excess_ice_col(c,j) = col%dz(c,j)*denice*0.05    !low excess ice (5% and tunable)
+                     this%excess_ice_col(c,j) = col%dz(c,j)*denice*0.01    !low excess ice (5% and tunable)
                   else
                      this%excess_ice_col(c,j) = 0.0_r8
                   endif
@@ -886,7 +890,7 @@ contains
 			   do j = 1, nlevs
                   if (col%zi(c,j) >= 1._r8 .and. col%zi(c,j) <= 3._r8) then
 !                  if (col%zi(c,j) <= 4._r8) then
-                     this%excess_ice_col(c,j) = col%dz(c,j)*denice*0.15   ! medium excess ice (15% and tunable)	
+                     this%excess_ice_col(c,j) = col%dz(c,j)*denice*0.10   ! medium excess ice (15% and tunable)	
                   else
                      this%excess_ice_col(c,j) = 0.0_r8
                   endif
@@ -897,7 +901,7 @@ contains
 			    do j = 1, nlevs
                   if (col%zi(c,j) >= 1._r8 .and. col%zi(c,j) <= 3._r8) then
 !                  if (col%zi(c,j) <= 4._r8) then
-                     this%excess_ice_col(c,j) = col%dz(c,j)*denice*0.90    !high excess ice (25% and tunable)
+                     this%excess_ice_col(c,j) = col%dz(c,j)*denice*0.20    !high excess ice (25% and tunable)
                   else
                      this%excess_ice_col(c,j) = 0.0_r8
                   endif
@@ -970,7 +974,9 @@ contains
     ! !USES:
     use spmdMod          , only : masterproc
     use clm_varcon       , only : denice, denh2o, pondmx, watmin, spval, nameg
-    use landunit_varcon  , only : istcrop, istdlak, istsoil  
+!Edit by Lei Cai--start
+    use landunit_varcon  , only : istcrop, istdlak, istsoil, istsoil_li, istsoil_mi, istsoil_hi
+!Edit by Lei Cai--end
     use column_varcon    , only : icol_roof, icol_sunwall, icol_shadewall
     use clm_time_manager , only : is_first_step
     use clm_varctl       , only : bound_h2osoi
@@ -1105,7 +1111,11 @@ contains
              end if
              do j = 1,nlevs
                 l = col%landunit(c)
-                if (lun%itype(l) == istsoil .or. lun%itype(l) == istcrop) then
+!Edit by Lei Cai--start
+                if (lun%itype(l) == istsoil .or. lun%itype(l) == istsoil_li .or. &
+				lun%itype(l) == istsoil_mi .or. lun%itype(l) == istsoil_hi .or. &
+				lun%itype(l) == istcrop) then
+!Edit by Lei Cai--end
                    this%h2osoi_liq_col(c,j) = max(0._r8,this%h2osoi_liq_col(c,j))
                    this%h2osoi_ice_col(c,j) = max(0._r8,this%h2osoi_ice_col(c,j))
                    this%h2osoi_vol_col(c,j) = this%h2osoi_liq_col(c,j)/(col%dz(c,j)*denh2o) &

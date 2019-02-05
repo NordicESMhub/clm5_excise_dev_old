@@ -156,7 +156,9 @@ contains
      ! !USES:
      use clm_varcon         , only : hfus, denice, zlnd, rpi, spval, tfrz, int_snow_max
      use column_varcon      , only : icol_roof, icol_sunwall, icol_shadewall
-     use landunit_varcon    , only : istcrop, istwet, istsoil, istice_mec 
+!Edit by Lei Cai--start
+     use landunit_varcon    , only : istcrop, istwet, istsoil, istsoil_li, istsoil_mi, istsoil_hi, istice_mec 
+!Edit by Lei Cai--end
      use clm_varctl         , only : subgridflag
      use clm_varpar         , only : nlevsoi,nlevsno
      use clm_time_manager   , only : get_step_size
@@ -288,8 +290,11 @@ contains
           ! Canopy interception and precipitation onto ground surface
           ! Add precipitation to leaf water
 
-          if (lun%itype(l)==istsoil .or. lun%itype(l)==istwet .or. lun%urbpoi(l) .or. &
-               lun%itype(l)==istcrop) then
+!Edit by Lei Cai--start
+          if (lun%itype(l)==istsoil .or. lun%itype(l)==istsoil_li .or. &
+		  lun%itype(l)==istsoil_mi .or. lun%itype(l)==istsoil_hi .or. &
+		  lun%itype(l)==istwet .or. lun%urbpoi(l) .or. lun%itype(l)==istcrop) then
+!Edit by Lei Cai--end
 
              qflx_candrip(p) = 0._r8      ! rate of canopy runoff
              qflx_snocanfall(p) = 0._r8      ! rate of just snow canopy fall
@@ -756,7 +761,9 @@ contains
      ! !USES:
      use shr_const_mod   , only : shr_const_pi
      use shr_spfn_mod    , only : erf => shr_spfn_erf
-     use landunit_varcon , only : istsoil, istcrop
+!Edit by Lei Cai--start
+     use landunit_varcon , only : istsoil, istsoil_li, istsoil_mi, istsoil_hi, istcrop
+!Edit by Lei Cai--end
      !
      ! !ARGUMENTS:
      type(bounds_type)     , intent(in)           :: bounds           
@@ -797,7 +804,11 @@ contains
           l = col%landunit(c)
 
           ! h2osfc only calculated for soil vegetated land units
-          if (lun%itype(l) == istsoil .or. lun%itype(l) == istcrop) then
+!Edit by Lei Cai--start
+          if (lun%itype(l) == istsoil .or. lun%itype(l) == istsoil_li .or. &
+		  lun%itype(l) == istsoil_mi .or. lun%itype(l) == istsoil_hi .or. &
+		  lun%itype(l) == istcrop) then
+!Edit by Lei Cai--end
 
              !  Use newton-raphson method to iteratively determine frac_h2osfc
              !  based on amount of surface water storage (h2osfc) and 
@@ -849,7 +860,9 @@ contains
 
              endif ! end of no_update construct
 
-          else !if landunit not istsoil/istcrop, set frac_h2osfc to zero
+!Edit by Lei Cai--start
+          else !if landunit not istsoil/istsoil_li/istsoil_mi/istsoil_hi/istcrop, set frac_h2osfc to zero
+!Edit by Lei Cai--end
 
              frac_h2osfc(c) = 0._r8
 

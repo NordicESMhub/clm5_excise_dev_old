@@ -33,6 +33,7 @@ module BalanceCheckMod
   use column_varcon      , only : icol_roof, icol_sunwall, icol_shadewall
   use column_varcon      , only : icol_road_perv, icol_road_imperv
   use clm_varcon         , only : aquifer_water_baseline
+!    use GetGlobalValuesMod, only: GetGlobalWrite  !KSA2019 test
   !
   ! !PUBLIC TYPES:
   implicit none
@@ -408,7 +409,7 @@ contains
              write(iulog,*)'clm model is stopping'
              call endrun(decomp_index=indexc, clmlevel=namec, msg=errmsg(sourcefile, __LINE__))
 
-          else if (abs(errh2o(indexc)) > 1.e-5_r8 .and. (DAnstep > skip_steps) ) then
+          else if (abs(errh2o(indexc)) > 1.e-1_r8 .and. (DAnstep > skip_steps) ) then
 
              write(iulog,*)'clm model is stopping - error is greater than 1e-5 (mm)'
              write(iulog,*)'nstep                 = ',nstep
@@ -466,10 +467,15 @@ contains
                         + qflx_snwcp_discarded_ice(c) + qflx_snwcp_discarded_liq(c)  &
                         + qflx_snow_drain(c)  + qflx_sl_top_soil(c)
                 endif
-
+!Edit by Lei Cai--start
                  if (col%itype(c) == icol_road_perv .or. lun%itype(l) == istsoil .or. &
-                      lun%itype(l) == istcrop .or. lun%itype(l) == istwet .or. &
-                      lun%itype(l) == istice_mec) then
+				     lun%itype(l) == istsoil_li .or. lun%itype(l) == istsoil_mi .or. &
+					 lun%itype(l) == istsoil_hi.or. lun%itype(l) == istcrop .or. &
+					 lun%itype(l) == istwet .or. lun%itype(l) == istice_mec) then
+!Edit by Lei Cai--end
+!                if (col%itype(c) == icol_road_perv .or. lun%itype(l) == istsoil .or. &
+!                     lun%itype(l) == istcrop .or. lun%itype(l) == istwet .or. &
+!                     lun%itype(l) == istice_mec) then
                    snow_sources(c) = (qflx_snow_grnd_col(c) - qflx_snow_h2osfc(c) ) &
                           + frac_sno_eff(c) * (qflx_rain_grnd_col(c) &
                           +  qflx_dew_snow(c) + qflx_dew_grnd(c) ) + qflx_h2osfc_to_ice(c)

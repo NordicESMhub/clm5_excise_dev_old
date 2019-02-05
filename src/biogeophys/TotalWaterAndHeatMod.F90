@@ -21,7 +21,9 @@ module TotalWaterAndHeatMod
   use TemperatureType    , only : temperature_type
   use column_varcon      , only : icol_roof, icol_sunwall, icol_shadewall
   use column_varcon      , only : icol_road_perv, icol_road_imperv
-  use landunit_varcon    , only : istdlak, istsoil,istcrop,istwet,istice_mec
+!Edit by Lei Cai--start
+  use landunit_varcon    , only : istdlak, istsoil,istsoil_li, istsoil_mi, istsoil_hi, istcrop,istwet,istice_mec
+!Edit by Lei Cai--end
   !
   ! !PUBLIC TYPES:
   implicit none
@@ -205,7 +207,7 @@ contains
     SHR_ASSERT_ALL((ubound(ice_mass) == (/bounds%endc/)), errMsg(sourcefile, __LINE__))
 !Edit by Lei Cai--start
     SHR_ASSERT_ALL((ubound(excess_ice) == (/bounds%endc/)), errMsg(sourcefile, __LINE__))
-!Edit by Lei Cai
+!Edit by Lei Cai--end
 
     associate( &
          snl          =>    col%snl                        , & ! Input:  [integer  (:)   ]  negative number of snow layers

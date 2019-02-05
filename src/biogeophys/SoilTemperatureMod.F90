@@ -633,9 +633,15 @@ endif
             if (j == 1) then ! this only needs to be done once
                eflx_fgr12(c) = -cnfac*fn(c,1) - (1._r8-cnfac)*fn1(c,1)
             end if
-            if (j > 0 .and. j < nlevgrnd .and. (lun%itype(l) == istsoil .or. lun%itype(l) == istcrop)) then
+!Edit by Lei Cai--start
+            if (j > 0 .and. j < nlevgrnd .and. (lun%itype(l) == istsoil .or. lun%itype(l) == istsoil_li .or. &
+			lun%itype(l) == istsoil_mi .or. lun%itype(l) == istsoil_hi .or. lun%itype(l) == istcrop)) then
+!Edit by Lei Cai--end
                eflx_fgr(c,j) = -cnfac*fn(c,j) - (1._r8-cnfac)*fn1(c,j)
-            else if (j == nlevgrnd .and. (lun%itype(l) == istsoil .or. lun%itype(l) == istcrop)) then
+!Edit by Lei Cai--start
+            else if (j == nlevgrnd .and. (lun%itype(l) == istsoil .or. lun%itype(l) == istsoil_li .or. &
+			lun%itype(l) == istsoil_mi .or. lun%itype(l) == istsoil_hi .or. lun%itype(l) == istcrop)) then
+!Edit by Lei Cai--end
                eflx_fgr(c,j) = 0._r8
             end if
 
@@ -1353,7 +1359,11 @@ endif
 
                ! from Zhao (1997) and Koren (1999)
                supercool(c,j) = 0.0_r8
-               if (lun%itype(l) == istsoil .or. lun%itype(l) == istcrop .or. col%itype(c) == icol_road_perv) then
+!Edit by Lei Cai--start
+               if (lun%itype(l) == istsoil .or. lun%itype(l) == istsoil_li .or. &
+		   lun%itype(l) == istsoil_mi .or. lun%itype(l) == istsoil_hi .or. &
+		   lun%itype(l) == istcrop .or. col%itype(c) == icol_road_perv) then
+!Edit by Lei Cai--end
                   if(t_soisno(c,j) < tfrz) then
                      smp = hfus*(tfrz-t_soisno(c,j))/(grav*t_soisno(c,j)) * 1000._r8  !(mm)
                      supercool(c,j) = watsat(c,j)*(smp/sucsat(c,j))**(-1._r8/bsw(c,j))

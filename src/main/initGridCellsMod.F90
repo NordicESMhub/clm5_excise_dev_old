@@ -304,7 +304,11 @@ contains
     ncols_added = 0
     npatches_added = 0
 
+!Edit by Lei Cai--start: change from npatches to nlunit
+!It's nlunit in ctsm, while npatches in noresm
     if (nlunits > 0) then
+   !if (npatches > 0) then 
+!Edit by Lei Cai--end
        call add_landunit(li=li, gi=gi, ltype=ltype, wtgcell=wtlunit2gcell)
        nlunits_added = nlunits_added + 1
        
