@@ -879,7 +879,7 @@ contains
                do j = 1, nlevs
                   if (col%zi(c,j) >= 1._r8 .and. col%zi(c,j) <= 3._r8) then
 !                  if (col%zi(c,j) <= 4._r8) then
-                     this%excess_ice_col(c,j) = col%dz(c,j)*denice*0.01    !low excess ice (5% and tunable)
+                     this%excess_ice_col(c,j) = col%dz(c,j)*denice*0._r8    !low excess ice (5% and tunable)
                   else
                      this%excess_ice_col(c,j) = 0.0_r8
                   endif
@@ -890,7 +890,7 @@ contains
 			   do j = 1, nlevs
                   if (col%zi(c,j) >= 1._r8 .and. col%zi(c,j) <= 3._r8) then
 !                  if (col%zi(c,j) <= 4._r8) then
-                     this%excess_ice_col(c,j) = col%dz(c,j)*denice*0.10   ! medium excess ice (15% and tunable)	
+                     this%excess_ice_col(c,j) = col%dz(c,j)*denice*0._r8   ! medium excess ice (15% and tunable)	
                   else
                      this%excess_ice_col(c,j) = 0.0_r8
                   endif
@@ -901,7 +901,7 @@ contains
 			    do j = 1, nlevs
                   if (col%zi(c,j) >= 1._r8 .and. col%zi(c,j) <= 3._r8) then
 !                  if (col%zi(c,j) <= 4._r8) then
-                     this%excess_ice_col(c,j) = col%dz(c,j)*denice*0.20    !high excess ice (25% and tunable)
+                     this%excess_ice_col(c,j) = col%dz(c,j)*denice*0._r8    !high excess ice (25% and tunable)
                   else
                      this%excess_ice_col(c,j) = 0.0_r8
                   endif

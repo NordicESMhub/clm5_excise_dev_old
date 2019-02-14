@@ -11,7 +11,7 @@ module SoilTemperatureMod
   use shr_log_mod       , only : errMsg => shr_log_errMsg
   use shr_infnan_mod    , only : nan => shr_infnan_nan, assignment(=)
   use decompMod         , only : bounds_type
-  use abortutils        , only : endrun
+  use abortutils       , only : endrun
   use perf_mod          , only : t_startf, t_stopf
   use clm_varctl        , only : iulog
   use UrbanParamsType   , only : urbanparams_type
@@ -1342,7 +1342,7 @@ endif
 
 
 
-               if (h2osoi_ice(c,j) > 0. .AND. t_soisno(c,j) > tfrz) then
+               if (h2osoi_ice(c,j) > 0._r8 .AND. t_soisno(c,j) > tfrz) then
                   imelt(c,j) = 1
                   !             tinc(c,j) = t_soisno(c,j) - tfrz 
                   tinc(c,j) = tfrz - t_soisno(c,j) 
@@ -1350,7 +1350,7 @@ endif
                endif
 
 !Edit by Lei Cai, from Hanna Lee--start: excess ice added in the calculation of melting
-               if (excess_ice(c,j) > 0._r8 .AND. t_soisno(c,j) > tfrz) then
+               if (excess_ice(c,j) > 0._r8 .AND. t_soisno(c,j) > tfrz) then  !KSA2019: make this an "else" of previous if block.
                   imelt(c,j) = 1
                   tinc(c,j) = tfrz - t_soisno(c,j)
                   t_soisno(c,j) = tfrz
@@ -1472,117 +1472,74 @@ endif
                         endif
                      endif
 
-                     heatr = 0._r8
- !Edit by Lei Cai, from Hanna Lee(scs): melting block, xm should only be non-negative if h2osoi_ice and/or excess
- !ice exist
-  
-                 if (xm(c,j) > 0._r8) then
  
-                    if (h2osoi_ice(c,j) > 0._r8) then
- !#1
- !Edit by Lei Cai, from Hanna Lee(scs): preferentially melt soil ice first
-                       if (xm(c,j) > h2osoi_ice(c,j)) then
- !#2
- !Edit by Lei Cai, from Hanna Lee(scs): if all soil ice melted, melt excess ice or heat liquid
-                          xm2(c,j) = xm(c,j) - h2osoi_ice(c,j)
-                          h2osoi_ice(c,j) = 0._r8
- 
-                          if (excess_ice(c,j) > 0._r8) then
- !#4
- !Edit by Lei Cai, from Hanna Lee(scs): melt excess ice
-                             if (xm2(c,j) > excess_ice(c,j)) then
- !#6
- !Edit by Lei Cai, from Hanna Lee(scs): set excess_ice to zero, compute heatr
+                    heatr = 0._r8
+
+ !Hanna Lee and Lei Cei. Rewritten by Kjetil Aas ---START---
+		    if (xm(c,j) > 0._r8) then  !Melt block
+
+                      if (h2osoi_ice(c,j) > 0._r8) then  !First melt soil ice
+
+                        if (xm(c,j) > h2osoi_ice(c,j)) then   !More melt than ice
+                           xm2(c,j) = xm(c,j) - h2osoi_ice(c,j)   
+                           h2osoi_ice(c,j) = 0._r8
+                           if (excess_ice(c,j) > 0._r8) then
+                              if (xm2(c,j) > excess_ice(c,j)) then
                                 xm3(c,j) = xm2(c,j) - excess_ice(c,j)
                                 excess_ice(c,j) = 0._r8
                                 heatr = hfus*xm3(c,j)/dtime
-                             elseif (xm2(c,j) <= excess_ice(c,j)) then
- !#7
- !Edit by Lei Cai, from Hanna Lee(scs):  melt some excess_ice, heatr is zero (no heating of liquid)
+                              elseif (xm2(c,j) <= excess_ice(c,j)) then
                                excess_ice(c,j) = excess_ice(c,j)-xm2(c,j)
                                heatr = 0._r8
                                xm3(c,j) = 0._r8
-                            endif
-                         else if (excess_ice(c,j) <= 0._r8) then
- !Edit by Lei Cai, from Hanna Lee(scs): use xm2 calculated in step#2
-                            heatr = hfus*xm2(c,j)/dtime
-                         endif
- !Edit by Lei Cai, from Hanna Lee(scs)
-                      else                                                   !#5
- 
- !Edit by Lei Cai, from Hanna Lee(scs): no excess_ice exists, heat liquid using xm2 to calculate heatr
- !                      heatr = hfus*xm2(c,j)/dtime
- !                      xm2(c,j) = xm(c,j) - excess_ice(c,j)
- 
-                         if (xm(c,j) <= h2osoi_ice(c,j)) then                !#3
- !Edit by Lei Cai, from Hanna Lee(scs): melt some h2osoi_ice, heatr is zero
-                            h2osoi_ice(c,j) = h2osoi_ice(c,j)-xm(c,j)
-                            heatr = 0._r8
-                            xm2(c,j) = 0._r8
-                         endif
-                      endif
-                   else                                                       !#8
- !Edit by Lei Cai, from Hanna Lee(scs): case where h2osoi_ice is zero, but excess_ice > 0
-                      xm2(c,j) = xm(c,j)
- 
-                      if (xm2(c,j) > excess_ice(c,j)) then
- !#9
- !Edit by Lei Cai, from Hanna Lee(scs): melt all excess_ice, and calculate heatr, heat liquid
-                         xm3(c,j) = xm2(c,j) - excess_ice(c,j)
-                         heatr = hfus*xm3(c,j)/dtime
-                         excess_ice(c,j) = 0._r8
-                      elseif (xm2(c,j) <= excess_ice(c,j)) then
- !#10
- !Edit by Lei Cai, from Hanna Lee(scs): melt some excess_ice, stop, set heatr = 0
-                         excess_ice(c,j) = excess_ice(c,j)-xm2(c,j)
-                         heatr = 0._r8
-                         xm3(c,j) = 0._r8
-                      endif
-                   endif
- 
- !This part (xm<0) indicates refreeze
-                elseif (xm(c,j) < 0._r8) then
-                   if (j <= 0) then
-                      h2osoi_ice(c,j) = min(wmass0(c,j), wice0(c,j)-xm(c,j))  !snow
- !Edit by Lei Cai, from Hanna Lee(scs): need to add heatr calculation here
-                      heatr = hm(c,j) - hfus*(wice0(c,j)-h2osoi_ice(c,j))/dtime
- !Edit by Lei Cai, from Hanna Lee(scs)
- !Edit by Lei Cai, from Hanna Lee(scs): This part was modified for the urban problem
-                   else
-                      if (wmass0(c,j) < supercool(c,j)) then
-                          !h2osoi_ice(c,j) = 0._r8
-                         xm2(c,j) = xm(c,j) - h2osoi_ice(c,j)
-                         h2osoi_ice(c,j) = 0._r8
-                         heatr = hfus*xm2(c,j)/dtime
-                      else
- !Edit by Lei Cai, from Hanna Lee(scs):
-                         if (abs(xm(c,j)) > (h2osoi_liq(c,j)-supercool(c,j))) then
- !Edit by Lei Cai, from Hanna Lee(scs): supercooled liquid
-                            h2osoi_ice(c,j) = h2osoi_ice(c,j)+(h2osoi_liq(c,j)-supercool(c,j))
-                            xm2(c,j) = xm(c,j) + (h2osoi_liq(c,j) - supercool(c,j))
- !Edit by Lei Cai, from Hanna Lee(scs): supercool added to xm2 calc
-                            heatr = hfus*xm2(c,j)/dtime !because part of xm is used to freeze h2osoi_liq
-                         elseif (abs(xm(c,j)) <= (h2osoi_liq(c,j)-supercool(c,j))) then
-                            h2osoi_ice(c,j) = h2osoi_ice(c,j) - xm(c,j) !because xm is negative
-                            heatr = 0._r8
- 
- !                         h2osoi_ice(c,j) = min(wmass0(c,j) -
- !                         supercool(c,j),wice0(c,j)-xm(c,j))
-                         endif
-                      endif
- 
- !Edit by Lei Cai, from Hanna Lee(scs): excess ice added in heatr calculations
- !                    heatr = hm(c,j) - hfus*(wice0(c,j)-h2osoi_ice(c,j))/dtime
-                   endif
-                endif
-                h2osoi_liq(c,j) = max(0._r8,wmass0(c,j)-h2osoi_ice(c,j)-excess_ice(c,j))
-!               write(iulog,*)'exice_melt_lev(kg/m2)',init_exice(c,j),excess_ice(c,j),c,j
-               exice_melt_lev(c,j) = init_exice(c,j) - excess_ice(c,j)
-         !write(iulog,*)'init_exice(kg/m2)',init_exice(c,j)
-         !write(iulog,*)'excess_ice(kg/m2)',excess_ice(c,j)
-         !write(iulog,*)'exice_melt_lev(kg/m2)',exice_melt_lev(c,j)
+                              endif
+                           elseif (excess_ice(c,j) <= 0._r8) then
+                             heatr = hfus*xm2(c,j)/dtime
+                           endif
+                        else            
+                             h2osoi_ice(c,j) = h2osoi_ice(c,j)-xm(c,j)
+                             heatr = 0._r8
+                             xm2(c,j) = 0._r8
+                        endif
 
+                      elseif (excess_ice(c,j) > 0._r8) then   !Melt only excess ice  !KSA2019 added exice check
+                        xm2(c,j) = xm(c,j)
+                        if (xm2(c,j) > excess_ice(c,j)) then
+                           xm3(c,j) = xm2(c,j) - excess_ice(c,j)
+                           heatr = hfus*xm3(c,j)/dtime
+                           excess_ice(c,j) = 0._r8
+			   write(iulog,*) 'In melt exice block C1.'
+                        elseif (xm2(c,j) <= excess_ice(c,j)) then
+                           excess_ice(c,j) = excess_ice(c,j)-xm2(c,j)
+                           heatr = 0._r8
+                           xm3(c,j) = 0._r8
+			   write(iulog,*) 'In melt exice block C2.'
+                        endif
 
+		      else                                    !KSA2019: no exice or soil ice. i.e. special case with blended snow/soil layer.
+		        !Original code
+                        h2osoi_ice(c,j) = max(0._r8, wice0(c,j)-xm(c,j))
+                        heatr = hm(c,j) - hfus*(wice0(c,j)-h2osoi_ice(c,j))/dtime
+                      endif                      !End soilice/exice block
+
+                    elseif (xm(c,j) < 0._r8) then !Freeze block
+                      if (j <= 0) then            !Snow
+                        h2osoi_ice(c,j) = min(wmass0(c,j), wice0(c,j)-xm(c,j))  !snow
+                      else     	 	   	  !Soil
+                        if ( (wmass0(c,j)-excess_ice(c,j)) < supercool(c,j)) then       !KSA2019: removed exice. Assume liq w. separated from exice.
+                          h2osoi_ice(c,j) = 0._r8
+                        else
+                          h2osoi_ice(c,j) = min( (wmass0(c,j)-excess_ice(c,j)) - supercool(c,j),wice0(c,j)-xm(c,j))
+                        endif
+                      endif			
+                      heatr = hm(c,j) - hfus*(wice0(c,j)-h2osoi_ice(c,j))/dtime                      
+                    endif    !End freeze block
+
+                    h2osoi_liq(c,j) = max(0._r8,wmass0(c,j)-h2osoi_ice(c,j)-excess_ice(c,j))
+                    exice_melt_lev(c,j) = init_exice(c,j) - excess_ice(c,j)
+ !Hanna Lee and Lei Cei. Rewritten by Kjetil Aas ---END---
+ !KSA2019: The previous code block has been modified to separate excess ice from soil ice when calculating supercooled liq. water, 
+ !under the assumption that excess ice does not form supercooled liquied water. Ok assumption?
 
 !Edit by Lei Cai, from Hanna Lee
 !Edit by Lei Cai, from Hanna Lee(scs)
