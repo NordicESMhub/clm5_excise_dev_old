@@ -866,7 +866,7 @@ contains
     ! Initializes time varying variables used only in coupled carbon-nitrogen mode (CN):
     !
     ! !USES:
-    use landunit_varcon	 , only : istsoil, istcrop 
+    use landunit_varcon	 , only : istsoil, istsoil_li, istsoil_mi, istsoil_hi, istcrop   !KSA2019
     use clm_time_manager , only : is_restart, get_nstep
     use clm_varctl, only : MM_Nuptake_opt    
     !
@@ -924,8 +924,9 @@ contains
        this%leafcmax_patch(p) = 0._r8
 
        l = patch%landunit(p)
-       if (lun%itype(l) == istsoil .or. lun%itype(l) == istcrop) then
-
+       if (lun%itype(l) == istsoil .or. lun%itype(l) == istsoil_li .or. &  !KSA2019
+	   lun%itype(l) == istsoil_mi .or. lun%itype(l) == istsoil_hi .or. &
+	    lun%itype(l) == istcrop) then
           if (patch%itype(p) == noveg) then
              this%leafc_patch(p)          = 0._r8
              this%leafc_storage_patch(p)  = 0._r8
@@ -1008,7 +1009,9 @@ contains
 
     do c = bounds%begc, bounds%endc
        l = col%landunit(c)
-       if (lun%itype(l) == istsoil .or. lun%itype(l) == istcrop) then
+       if (lun%itype(l) == istsoil .or. lun%itype(l) == istsoil_li .or. &  !KSA2019
+	   lun%itype(l) == istsoil_mi .or. lun%itype(l) == istsoil_hi .or. &
+	    lun%itype(l) == istcrop) then
 !          this%totgrainc_col(c)  = 0._r8
 
           ! total carbon pools
@@ -1069,7 +1072,7 @@ contains
     use clm_varcon       , only : c13ratio, c14ratio
     use clm_varctl       , only : spinup_state, use_cndv, MM_Nuptake_opt
     use clm_time_manager , only : get_nstep, is_restart, get_nstep
-    use landunit_varcon	 , only : istsoil, istcrop 
+    use landunit_varcon	 , only : istsoil, istsoil_li, istsoil_mi, istsoil_hi, istcrop   !KSA2019
     use spmdMod          , only : mpicom
     use shr_mpi_mod      , only : shr_mpi_sum
     use restUtilMod
@@ -1380,7 +1383,8 @@ contains
                    this%leafcmax_patch(i) = 0._r8
 
                    l = patch%landunit(i)
-                   if (lun%itype(l) == istsoil )then
+ 		   if (lun%itype(l) == istsoil .or. lun%itype(l) == istsoil_li .or. &  !KSA2019
+	   	   lun%itype(l) == istsoil_mi .or. lun%itype(l) == istsoil_hi )then
                       if ( present(num_reseed_patch) ) then
                          num_reseed_patch = num_reseed_patch + 1
                          filter_reseed_patch(num_reseed_patch) = i

@@ -138,7 +138,7 @@ contains
           wt_lunit(g,istsoil) = (wt_lunit(g,istsoil) + wt_lunit(g,istsoil_li) + wt_lunit(g,istsoil_mi) &
 		                         + wt_lunit(g,istsoil_hi) + wt_lunit(g,istcrop)) ! Add crop landunit to soil landunit
 !Edit by Lei Cai--end
-          wt_nat_patch(g,:)   =  wt_nat_patch(g,:) / wt_lunit(g,istsoil)
+          wt_nat_patch(g,:)   =  wt_nat_patch(g,:) / wt_lunit(g,istsoil)   !KSA2019: should this include all istsoil alternatives?
           wt_lunit(g,istcrop) = 0.0_r8                ! Zero out crop CFT's
        else
           wt_nat_patch(g,nc3crop:) = 0.0_r8    ! Make sure generic crops are zeroed out

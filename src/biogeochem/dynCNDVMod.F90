@@ -59,7 +59,7 @@ contains
     !
     ! !USES:
     use clm_time_manager, only : get_curr_date, get_step_size, get_nstep, get_curr_yearfrac
-    use landunit_varcon , only : istsoil ! CNDV incompatible with dynLU
+    use landunit_varcon , only : istsoil, istsoil_li, istsoil_mi, istsoil_hi !KSA2019 ! CNDV incompatible with dynLU
     !
     ! !ARGUMENTS:
     type(bounds_type), intent(in)    :: bounds  
@@ -95,7 +95,9 @@ contains
        g = patch%gridcell(p)
        l = patch%landunit(p)
 
-       if (lun%itype(l) == istsoil .and. lun%wtgcell(l) > 0._r8) then ! CNDV incompatible with dynLU
+       if ( (lun%itype(l) == istsoil .or. lun%itype(l) == istsoil_li .or. &  !KSA2019
+	   lun%itype(l) == istsoil_mi .or. lun%itype(l) == istsoil_hi ) &
+       .and. lun%wtgcell(l) > 0._r8) then ! CNDV incompatible with dynLU
           patch%wtcol(p)   = dgvs_inst%fpcgrid_patch(p) + &
                     wt1 * (dgvs_inst%fpcgridold_patch(p) - dgvs_inst%fpcgrid_patch(p))
 

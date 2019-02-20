@@ -57,7 +57,7 @@ contains
     !
     ! !USES:
     use shr_const_mod      , only : SHR_CONST_PDB
-    use landunit_varcon    , only : istsoil, istcrop
+    use landunit_varcon    , only : istsoil, istsoil_li, istsoil_mi, istsoil_hi, istcrop   !KSA2019
     use clm_varpar         , only : numveg, nlevdecomp
     use clm_varcon         , only : c13ratio, c14ratio, c3_r2, c4_r2
     use clm_time_manager   , only : get_step_size
@@ -358,7 +358,9 @@ contains
        endif
        
        l = patch%landunit(p)
-       if (lun%itype(l) == istsoil .or. lun%itype(l) == istcrop) then
+       if (lun%itype(l) == istsoil .or. lun%itype(l) == istsoil_li .or. &  !KSA2019
+	   lun%itype(l) == istsoil_mi .or. lun%itype(l) == istsoil_hi .or. &
+       	   lun%itype(l) == istcrop) then
           
           ! calculate the change in weight for the timestep
           dwt(p) = patch%wtgcell(p)-prior_weights%pwtgcell(p)

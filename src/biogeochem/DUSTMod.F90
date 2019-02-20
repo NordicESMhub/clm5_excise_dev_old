@@ -17,7 +17,7 @@ module DUSTMod
   use shr_infnan_mod       , only : nan => shr_infnan_nan, assignment(=)
   use clm_varpar           , only : dst_src_nbr, ndst, sz_nbr
   use clm_varcon           , only : grav, spval
-  use landunit_varcon      , only : istcrop, istsoil
+  use landunit_varcon      , only : istcrop, istsoil, istsoil_li, istsoil_mi, istsoil_hi   !KSA2019
   use clm_varctl           , only : iulog
   use abortutils           , only : endrun
   use subgridAveMod        , only : p2l_1d
@@ -315,7 +315,9 @@ contains
          ! linearly from 1 to 0 as VAI(=tlai+tsai) increases from 0 to vai_mbl_thr
          ! if ice sheet, wetland, or lake, no dust allowed
 
-         if (lun%itype(l) == istsoil .or. lun%itype(l) == istcrop) then
+         if (lun%itype(l) == istsoil .or. lun%itype(l) == istsoil_li .or. &  !KSA2019
+	   lun%itype(l) == istsoil_mi .or. lun%itype(l) == istsoil_hi .or. &
+	   lun%itype(l) == istcrop) then
             if (tlai_lu(l) < vai_mbl_thr) then
                lnd_frc_mbl(p) = 1.0_r8 - (tlai_lu(l))/vai_mbl_thr
             else

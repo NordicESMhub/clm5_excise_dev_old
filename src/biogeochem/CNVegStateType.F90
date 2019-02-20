@@ -9,7 +9,7 @@ module CNVegStateType
   use clm_varpar     , only : nlevsno, nlevgrnd, nlevlak, nlevsoi
   use clm_varctl     , only : use_cn, iulog, fsurdat, use_crop, use_cndv
   use clm_varcon     , only : spval, ispval, grlnd
-  use landunit_varcon, only : istsoil, istcrop
+  use landunit_varcon, only : istsoil, istsoil_li, istsoil_mi, istsoil_hi, istcrop   !KSA2019
   use LandunitType   , only : lun                
   use ColumnType     , only : col                
   use PatchType      , only : patch                
@@ -576,7 +576,9 @@ contains
           this%farea_burned_col   (c) = spval
        end if
 
-       if (lun%itype(l) == istsoil .or. lun%itype(l) == istcrop) then
+       if (lun%itype(l) == istsoil .or. lun%itype(l) == istsoil_li .or. &  !KSA2019
+	   lun%itype(l) == istsoil_mi .or. lun%itype(l) == istsoil_hi .or. &
+           lun%itype(l) == istcrop) then
           this%annsum_counter_col(c) = 0._r8   
           this%annavg_t2m_col(c)     = 280._r8 
 
@@ -625,7 +627,9 @@ contains
           this%plantCN_patch(p)               = spval
        end if
 
-       if (lun%itype(l) == istsoil .or. lun%itype(l) == istcrop) then
+       if (lun%itype(l) == istsoil .or. lun%itype(l) == istsoil_li .or. &  !KSA2019
+	   lun%itype(l) == istsoil_mi .or. lun%itype(l) == istsoil_hi .or. &
+           lun%itype(l) == istcrop) then
           ! phenology variables
           this%dormant_flag_patch(p)   = 1._r8
           this%days_active_patch(p)    = 0._r8

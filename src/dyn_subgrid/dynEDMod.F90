@@ -4,7 +4,7 @@ module dynEDMod
   ! !USES:
   use shr_kind_mod   , only : r8 => shr_kind_r8
   use decompMod      , only : bounds_type
-  use landunit_varcon, only : istsoil
+  use landunit_varcon, only : istsoil, istsoil_li, istsoil_mi, istsoil_hi !KSA2019
   use PatchType      , only : patch
   use ColumnType     , only : col
   !
@@ -29,7 +29,8 @@ contains
     
     do p = bounds%begp,bounds%endp
        c = patch%column(p)
-       if (col%itype(c) == istsoil) then 
+       if ( (col%itype(c) == istsoil.or. col%itype(c)==istsoil_li &  !KSA2019
+       	  .or. col%itype(c)==istsoil_mi .or. col%itype(c)==istsoil_hi) ) then 
           if (patch%is_veg(p) .or. patch%is_bareground(p)) then
              patch%wtcol(p) = patch%wt_ed(p)
           else

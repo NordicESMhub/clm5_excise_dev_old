@@ -98,7 +98,7 @@ contains
     ! Returns TEMPLATE_NONE_FOUND if there is no column to use for initialization
     !
     ! !USES:
-    use landunit_varcon, only : istsoil, istcrop, istice_mec, istdlak, istwet, isturb_MIN, isturb_MAX
+    use landunit_varcon, only : istsoil, istsoil_li, istsoil_mi, istsoil_hi, istcrop, istice_mec, istdlak, istwet, isturb_MIN, isturb_MAX  !KSA2019
     !
     ! !ARGUMENTS:
     integer :: c_template  ! function result
@@ -184,7 +184,7 @@ contains
     ! Returns TEMPLATE_NONE_FOUND if there is no column to use for initialization
     !
     ! !USES:
-    use landunit_varcon, only : istsoil, istcrop
+    use landunit_varcon, only : istsoil, istsoil_li, istsoil_mi, istsoil_hi, istcrop  !KSA2019
     !
     ! !ARGUMENTS:
     integer :: c_template  ! function result
@@ -203,10 +203,22 @@ contains
     ! find the first active column on the crop landunit; if there is none, then
     ! template_col will be TEMPLATE_NONE_FOUND
     c_template = template_col_from_landunit(bounds, c_new, istsoil, cactive_prior(bounds%begc:bounds%endc))
+
+!KSA2019 start
     if (c_template == TEMPLATE_NONE_FOUND) then
+       c_template = template_col_from_landunit(bounds, c_new, istsoil_li, cactive_prior(bounds%begc:bounds%endc))
+    end if
+    if (c_template == TEMPLATE_NONE_FOUND) then
+       c_template = template_col_from_landunit(bounds, c_new, istsoil_mi, cactive_prior(bounds%begc:bounds%endc))
+    end if
+    if (c_template == TEMPLATE_NONE_FOUND) then
+       c_template = template_col_from_landunit(bounds, c_new, istsoil_hi, cactive_prior(bounds%begc:bounds%endc))
+    end if
+    if (c_template == TEMPLATE_NONE_FOUND) then
+!KSA2019 end
+
        c_template = template_col_from_landunit(bounds, c_new, istcrop, cactive_prior(bounds%begc:bounds%endc))
     end if
-
   end function initial_template_col_crop
 
 

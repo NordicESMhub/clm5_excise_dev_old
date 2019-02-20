@@ -13,7 +13,7 @@ module SoilBiogeochemNitrogenStateType
   use clm_varcon                         , only : spval, dzsoi_decomp, zisoi
   use clm_varctl                         , only : use_nitrif_denitrif, use_vertsoilc, use_century_decomp
   use clm_varctl                         , only : iulog, override_bgc_restart_mismatch_dump, spinup_state
-  use landunit_varcon                    , only : istcrop, istsoil 
+  use landunit_varcon                    , only : istcrop, istsoil, istsoil_li, istsoil_mi, istsoil_hi !KSA2019 
   use SoilBiogeochemDecompCascadeConType , only : decomp_cascade_con
   use LandunitType                       , only : lun                
   use ColumnType                         , only : col                
@@ -321,7 +321,9 @@ contains
 
     do c = bounds%begc, bounds%endc
        l = col%landunit(c)
-       if (lun%itype(l) == istsoil .or. lun%itype(l) == istcrop) then
+       if (lun%itype(l) == istsoil .or. lun%itype(l) == istsoil_li .or. &  !KSA2019
+	   lun%itype(l) == istsoil_mi .or. lun%itype(l) == istsoil_hi .or. &
+       	   lun%itype(l) == istcrop) then
 
           ! column nitrogen state variables
           this%ntrunc_col(c) = 0._r8

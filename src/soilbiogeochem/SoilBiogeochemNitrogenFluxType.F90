@@ -848,7 +848,7 @@ contains
     ! Initializes time varying variables used only in coupled carbon-nitrogen mode (CN):
     !
     ! !USES:
-    use landunit_varcon , only : istsoil, istcrop
+    use landunit_varcon , only : istsoil, istsoil_li, istsoil_mi, istsoil_hi, istcrop !KSA2019  not used?
     !
     ! !ARGUMENTS:
     class(soilbiogeochem_nitrogenflux_type) :: this

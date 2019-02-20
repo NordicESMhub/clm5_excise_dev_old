@@ -8,7 +8,7 @@ module SoilBiogeochemCarbonStateType
   use clm_varpar                         , only : nlevdecomp_full, nlevdecomp, nlevsoi
   use clm_varcon                         , only : spval, ispval, dzsoi_decomp, zisoi, zsoi, c3_r2
   use clm_varctl                         , only : iulog, use_vertsoilc, spinup_state, use_fates 
-  use landunit_varcon                    , only : istcrop, istsoil
+  use landunit_varcon                    , only : istcrop, istsoil, istsoil_li, istsoil_mi, istsoil_hi !KSA2019
   use abortutils                         , only : endrun
   use spmdMod                            , only : masterproc 
   use SoilBiogeochemDecompCascadeConType , only : decomp_cascade_con
@@ -367,7 +367,9 @@ contains
     do c = bounds%begc, bounds%endc
        l = col%landunit(c)
 
-       if (lun%itype(l) == istsoil .or. lun%itype(l) == istcrop) then
+       if (lun%itype(l) == istsoil .or. lun%itype(l) == istsoil_li .or. &  !KSA2019
+	   lun%itype(l) == istsoil_mi .or. lun%itype(l) == istsoil_hi .or. &
+       	   lun%itype(l) == istcrop) then
           if (.not. present(c12_soilbiogeochem_carbonstate_inst)) then !c12
 
              do j = 1, nlevdecomp
@@ -416,7 +418,9 @@ contains
        end if
 
        if ( .not. use_fates ) then
-          if (lun%itype(l) == istsoil .or. lun%itype(l) == istcrop) then
+       if (lun%itype(l) == istsoil .or. lun%itype(l) == istsoil_li .or. &  !KSA2019
+	   lun%itype(l) == istsoil_mi .or. lun%itype(l) == istsoil_hi .or. &
+       	   lun%itype(l) == istcrop) then
              if (present(c12_soilbiogeochem_carbonstate_inst)) then
                 this%cwdc_col(c)    = c12_soilbiogeochem_carbonstate_inst%cwdc_col(c) * ratio
              else

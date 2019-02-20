@@ -39,7 +39,7 @@ contains
     ! !USES:
     use shr_const_mod   , only : SHR_CONST_CDAY, SHR_CONST_PI, SHR_CONST_TKFRZ
     use shr_log_mod     , only : errMsg => shr_log_errMsg
-    use landunit_varcon , only : istsoil
+    use landunit_varcon , only : istsoil, istsoil_li, istsoil_mi, istsoil_hi !KSA2019
     use clm_varctl      , only : iulog
     use pftconMod       , only : noveg, nc3_arctic_grass
     use abortutils      , only : endrun
@@ -200,7 +200,8 @@ contains
 
          ! Case 2 -- patch begins to exist - introduce newly "adapted" patches
 
-         if (lun%itype(l) == istsoil) then
+         if (lun%itype(l) == istsoil .or. lun%itype(l) == istsoil_li .or. &  !KSA2019
+		lun%itype(l) == istsoil_mi .or. lun%itype(l) == istsoil_hi ) then
             if (.not. present(p) .and. prec365(c) >= prec_min_estab .and. estab(p)) then
                if (twmax(ivt(p)) > 999._r8 .or. agddtw(p) == 0._r8) then
 

@@ -140,7 +140,7 @@ contains
     ! See also the notes about cactive under 'template_col_from_landunit'.
     !
     ! !USES:
-    use landunit_varcon, only : istsoil
+    use landunit_varcon, only : istsoil, istsoil_li, istsoil_mi, istsoil_hi   !KSA2019
     !
     ! !ARGUMENTS:
     type(bounds_type) , intent(in)  :: bounds                      ! bounds
@@ -156,6 +156,7 @@ contains
     SHR_ASSERT_ALL((ubound(cactive) == (/bounds%endc/)), errMsg(sourcefile, __LINE__))
     SHR_ASSERT_ALL((ubound(c_templates) == (/bounds%endc/)), errMsg(sourcefile, __LINE__))
 
+!KSA2019: not sure if istsoil_li/mi/hi should be added here. I think this is ok. Always use istsoil
     do c = bounds%begc, bounds%endc
        c_templates(c) = template_col_from_landunit(bounds, c, istsoil, &
             cactive(bounds%begc:bounds%endc))

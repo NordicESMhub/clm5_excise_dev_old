@@ -16,7 +16,7 @@ module CNVegCarbonFluxType
   use clm_varctl                         , only : use_cndv, use_c13, use_nitrif_denitrif, use_crop
   use clm_varctl                         , only : use_grainproduct
   use clm_varctl                         , only : iulog
-  use landunit_varcon                    , only : istsoil, istcrop, istdlak 
+  use landunit_varcon                    , only : istsoil, istsoil_li, istsoil_mi, istsoil_hi, istcrop, istdlak  !KSA2019
   use pftconMod                          , only : npcropmin
   use LandunitType                       , only : lun                
   use ColumnType                         , only : col                
@@ -3354,7 +3354,9 @@ contains
              this%xsmrpool_c13ratio_patch(p)  = spval
           endif
        end if
-       if (lun%itype(l) == istsoil .or. lun%itype(l) == istcrop) then
+        if (lun%itype(l) == istsoil .or. lun%itype(l) == istsoil_li .or. &   !KSA2019
+	   lun%itype(l) == istsoil_mi .or. lun%itype(l) == istsoil_hi .or. &
+	    lun%itype(l) == istcrop) then	      
           this%availc_patch(p)                = 0._r8
           this%xsmrpool_recover_patch(p)      = 0._r8
           this%excess_cflux_patch(p)          = 0._r8
@@ -3370,8 +3372,10 @@ contains
 
        ! also initialize dynamic landcover fluxes so that they have
        ! real values on first timestep, prior to calling pftdyn_cnbal
-       if (lun%itype(l) == istsoil .or. lun%itype(l) == istcrop) then
-          this%dwt_slash_cflux_col(c) = 0._r8
+       if (lun%itype(l) == istsoil .or. lun%itype(l) == istsoil_li .or. &   !KSA2019
+	   lun%itype(l) == istsoil_mi .or. lun%itype(l) == istsoil_hi .or. &
+	    lun%itype(l) == istcrop) then
+         this%dwt_slash_cflux_col(c) = 0._r8
           do j = 1, nlevdecomp_full
              this%dwt_frootc_to_litr_met_c_col(c,j) = 0._r8
              this%dwt_frootc_to_litr_cel_c_col(c,j) = 0._r8
@@ -3392,7 +3396,9 @@ contains
           this%tempsum_litfall_patch(p)  = spval
           this%annsum_litfall_patch(p)   = spval
        end if
-       if (lun%itype(l) == istsoil .or. lun%itype(l) == istcrop) then
+       if (lun%itype(l) == istsoil .or. lun%itype(l) == istsoil_li .or. &   !KSA2019
+	   lun%itype(l) == istsoil_mi .or. lun%itype(l) == istsoil_hi .or. &
+	    lun%itype(l) == istcrop) then
           this%tempsum_npp_patch(p)      = 0._r8
           this%annsum_npp_patch(p)       = 0._r8
           this%tempsum_litfall_patch(p)  = 0._r8
@@ -3409,7 +3415,9 @@ contains
 
        ! also initialize dynamic landcover fluxes so that they have
        ! real values on first timestep, prior to calling pftdyn_cnbal
-       if (lun%itype(l) == istsoil .or. lun%itype(l) == istcrop) then
+       if (lun%itype(l) == istsoil .or. lun%itype(l) == istsoil_li .or. &   !KSA2019
+	   lun%itype(l) == istsoil_mi .or. lun%itype(l) == istsoil_hi .or. &
+	    lun%itype(l) == istcrop) then
           this%annsum_npp_col(c) = 0._r8   
        end if
     end do

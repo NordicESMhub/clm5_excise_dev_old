@@ -9,7 +9,7 @@ module SoilBiogeochemStateType
   use clm_varpar     , only : nlevsno, nlevgrnd, nlevlak, nlevsoifl, nlevsoi
   use clm_varpar     , only : ndecomp_cascade_transitions, nlevdecomp, nlevdecomp_full
   use clm_varcon     , only : spval, ispval, c14ratio, grlnd
-  use landunit_varcon, only : istsoil, istcrop
+  use landunit_varcon, only : istsoil, istsoil_li, istsoil_mi, istsoil_hi, istcrop   !KSA2019
   use clm_varpar     , only : nlevsno, nlevgrnd, nlevlak
   use clm_varctl     , only : use_vertsoilc, use_cn 
   use clm_varctl     , only : iulog
@@ -238,7 +238,9 @@ contains
           end do
        end if
 
-       if (lun%itype(l) == istsoil .or. lun%itype(l) == istcrop) then
+       if (lun%itype(l) == istsoil .or. lun%itype(l) == istsoil_li .or. &  !KSA2019
+	   lun%itype(l) == istsoil_mi .or. lun%itype(l) == istsoil_hi .or. &
+       	   lun%itype(l) == istcrop) then
           ! initialize fpi_vr so that levels below nlevsoi are not nans
           this%fpi_vr_col(c,1:nlevdecomp_full)          = 0._r8 
           this%som_adv_coef_col(c,1:nlevdecomp_full)    = 0._r8 

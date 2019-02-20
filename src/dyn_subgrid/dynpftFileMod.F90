@@ -248,7 +248,7 @@ contains
     ! dyn_var_time_uninterp_type.
     !
     ! !USES:
-    use landunit_varcon , only : istsoil
+    use landunit_varcon , only : istsoil, istsoil_li, istsoil_mi, istsoil_hi !KSA2019
     use clm_varpar      , only : natpft_lb, natpft_ub
     !
     ! !ARGUMENTS:
@@ -279,7 +279,8 @@ contains
        g = patch%gridcell(p)
        l = patch%landunit(p)
 
-       if (lun%itype(l) == istsoil) then
+       if ((lun%itype(l) == istsoil .or. lun%itype(l)==istsoil_li &  !KSA2019
+       	  .or. lun%itype(l)==istsoil_mi .or. lun%itype(l)==istsoil_hi)) then
           m = patch%itype(p)
 
           ! Note that the following assignment assumes that all Patches share a single column

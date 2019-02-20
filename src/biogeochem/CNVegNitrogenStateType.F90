@@ -8,7 +8,7 @@ module CNVegNitrogenStateType
   use clm_varpar                         , only : ndecomp_cascade_transitions, ndecomp_pools, nlevcan
   use clm_varpar                         , only : nlevdecomp_full, nlevdecomp
   use clm_varcon                         , only : spval, ispval, dzsoi_decomp, zisoi
-  use landunit_varcon                    , only : istcrop, istsoil 
+  use landunit_varcon                    , only : istcrop, istsoil, istsoil_li, istsoil_mi, istsoil_hi  !KSA2019
   use clm_varctl                         , only : use_nitrif_denitrif, use_vertsoilc, use_century_decomp
   use clm_varctl                         , only : iulog, override_bgc_restart_mismatch_dump
   use clm_varctl                         , only : use_crop
@@ -429,8 +429,9 @@ contains
     do p = bounds%begp,bounds%endp
 
        l = patch%landunit(p)
-       if (lun%itype(l) == istsoil .or. lun%itype(l) == istcrop) then
-
+       if (lun%itype(l) == istsoil .or. lun%itype(l) == istsoil_li .or. &  !KSA2019
+	   lun%itype(l) == istsoil_mi .or. lun%itype(l) == istsoil_hi .or. &
+	   lun%itype(l) == istcrop) then	      
           if (patch%itype(p) == noveg) then
              this%leafn_patch(p) = 0._r8
              this%leafn_storage_patch(p) = 0._r8
@@ -500,7 +501,9 @@ contains
 
     do c = bounds%begc, bounds%endc
        l = col%landunit(c)
-       if (lun%itype(l) == istsoil .or. lun%itype(l) == istcrop) then
+      if (lun%itype(l) == istsoil .or. lun%itype(l) == istsoil_li .or. &  !KSA2019
+	   lun%itype(l) == istsoil_mi .or. lun%itype(l) == istsoil_hi .or. &
+	   lun%itype(l) == istcrop) then
           ! total nitrogen pools
           this%totecosysn_col(c) = 0._r8
           this%totn_p2c_col(c)   = 0._r8

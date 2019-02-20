@@ -1213,7 +1213,7 @@ contains
     ! Initializes time varying variables used only in coupled carbon-nitrogen mode (CN):
     !
     ! !USES:
-    use landunit_varcon , only : istsoil, istcrop
+    use landunit_varcon , only : istsoil, istsoil_li, istsoil_mi, istsoil_hi, istcrop  !KSA2019
     !
     ! !ARGUMENTS:
     class(cnveg_nitrogenflux_type) :: this 
@@ -1263,7 +1263,9 @@ contains
           this%soyfixn_patch(p)       = 0._r8 
        end if
 
-       if (lun%itype(l) == istsoil .or. lun%itype(l) == istcrop) then
+       if (lun%itype(l) == istsoil .or. lun%itype(l) == istsoil_li .or. &  !KSA2019
+	   lun%itype(l) == istsoil_mi .or. lun%itype(l) == istsoil_hi .or. &
+	   lun%itype(l) == istcrop) then
           this%fert_counter_patch(p)  = 0._r8
        end if
        if ( use_fun ) then      !previously set to spval for special land units

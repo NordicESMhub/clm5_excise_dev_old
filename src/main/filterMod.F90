@@ -529,7 +529,9 @@ contains
           ! this region, in order to provide SMB forcing for the bare ground elevation
           ! class (elevation class 0).
           if ( glc_behavior%melt_replaced_by_ice_grc(g) .and. &
-               (lun%itype(l) == istice_mec .or. lun%itype(l) == istsoil)) then
+               (lun%itype(l) == istice_mec .or. lun%itype(l) == istsoil .or.  & !KSA2019
+	       lun%itype(l) == istsoil_li .or. lun%itype(l) == istsoil_mi .or. &
+	       lun%itype(l) == istsoil_hi)) then
              f = f + 1
              this_filter(nc)%do_smb_c(f) = c
           end if

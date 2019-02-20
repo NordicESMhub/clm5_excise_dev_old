@@ -15,7 +15,7 @@ module ch4Mod
   use clm_varpar                     , only : nlevsoi, ngases, nlevsno, nlevdecomp
   use clm_varcon                     , only : denh2o, denice, tfrz, grav, spval, rgas, grlnd
   use clm_varcon                     , only : catomw, s_con, d_con_w, d_con_g, c_h_inv, kh_theta, kh_tbase
-  use landunit_varcon                , only : istsoil, istcrop, istdlak
+  use landunit_varcon                , only : istsoil, istsoil_li, istsoil_mi, istsoil_hi, istcrop, istdlak  !KSA2019
   use clm_time_manager               , only : get_step_size, get_nstep
   use clm_varctl                     , only : iulog, use_cn, use_nitrif_denitrif, use_lch4
   use abortutils                     , only : endrun
@@ -735,7 +735,7 @@ contains
     ! !USES:
     use shr_kind_mod    , only : r8 => shr_kind_r8
     use clm_varpar      , only : nlevsoi, nlevgrnd, nlevdecomp
-    use landunit_varcon , only : istsoil, istdlak, istcrop
+    use landunit_varcon , only : istsoil, istsoil_li, istsoil_mi, istsoil_hi, istdlak, istcrop  !KSA2019
     use clm_varctl      , only : iulog
     use ch4varcon       , only : allowlakeprod, usephfact, finundation_mtd
     use ch4varcon       , only : finundation_mtd_ZWT_inversion
@@ -856,14 +856,17 @@ contains
        this%conc_o2_unsat_col  (c,1:nlevsoi) = 0._r8
 
        l = col%landunit(c)
-       if (lun%itype(l) == istsoil .or. lun%itype(l) == istcrop .or. &
-            lun%itype(l) == istdlak) then
+       if (lun%itype(l) == istsoil .or. lun%itype(l) == istsoil_li .or. &    !KSA2019
+		   lun%itype(l) == istsoil_mi .or. lun%itype(l) == istsoil_hi &
+		   .or. lun%itype(l) == istcrop .or. lun%itype(l) == istdlak) then
           this%annsum_counter_col(c) = 0._r8
           this%tempavg_somhr_col(c) = 0._r8
           this%tempavg_finrw_col(c) = 0._r8
        end if
 
-       if (lun%itype(l) == istsoil .or. lun%itype(l) == istcrop) then
+       if (lun%itype(l) == istsoil .or. lun%itype(l) == istsoil_li .or. &   !KSA2019
+		   lun%itype(l) == istsoil_mi .or. lun%itype(l) == istsoil_hi &
+		   .or. lun%itype(l) == istcrop) then
 
           this%o2stress_sat_col   (c,1:nlevsoi) = 1._r8
           this%o2stress_unsat_col (c,1:nlevsoi) = 1._r8
@@ -920,7 +923,9 @@ contains
        this%ch4stress_unsat_col        (c,nlevsoi+1:nlevgrnd) = 0._r8
        this%ch4stress_sat_col          (c,nlevsoi+1:nlevgrnd) = 0._r8
 
-       if (lun%itype(l) == istsoil .or. lun%itype(l) == istcrop) then
+       if (lun%itype(l) == istsoil .or. lun%itype(l) == istsoil_li .or. & !KSA2019
+		   lun%itype(l) == istsoil_mi .or. lun%itype(l) == istsoil_hi &
+		   .or. lun%itype(l) == istcrop) then
 
           this%conc_ch4_lake_col       (c,:) = spval
           this%conc_o2_lake_col        (c,:) = spval
@@ -1008,8 +1013,9 @@ contains
 
     do p = bounds%begp, bounds%endp
        l = patch%landunit(p)
-       if (lun%itype(l) == istsoil .or. lun%itype(l) == istcrop .or. &
-            lun%itype(l) == istdlak) then
+       if (lun%itype(l) == istsoil .or. lun%itype(l) == istsoil_li .or. & !KSA2019
+		   lun%itype(l) == istsoil_mi .or. lun%itype(l) == istsoil_hi &
+		   .or. lun%itype(l) == istcrop .or. lun%itype(l) == istdlak) then
           this%tempavg_agnpp_patch(p) = 0._r8
           this%tempavg_bgnpp_patch(p) = 0._r8
        end if

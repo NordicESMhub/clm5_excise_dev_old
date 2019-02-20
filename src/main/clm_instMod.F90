@@ -11,7 +11,7 @@ module clm_instMod
   use clm_varctl      , only : use_cn, use_c13, use_c14, use_lch4, use_cndv, use_fates
   use clm_varctl      , only : use_century_decomp, use_crop
   use clm_varcon      , only : bdsno, c13ratio, c14ratio
-  use landunit_varcon , only : istice_mec, istsoil
+  use landunit_varcon , only : istice_mec, istsoil, istsoil_li, istsoil_mi, istsoil_hi   !KSA2019
   use perf_mod        , only : t_startf, t_stopf
   use controlMod      , only : NLFilename
 
@@ -228,7 +228,9 @@ contains
        ! all of the year.
        if (lun%itype(l)==istice_mec) then
           h2osno_col(c) = 100._r8
-       else if (lun%itype(l)==istsoil .and. abs(grc%latdeg(g)) >= 60._r8) then 
+       else if ( (lun%itype(l)==istsoil .or. lun%itype(l)==istsoil_li &  !KSA2019
+       	  .or. lun%itype(l)==istsoil_mi .or. lun%itype(l)==istsoil_hi) &
+          .and. abs(grc%latdeg(g)) >= 60._r8) then  
           h2osno_col(c) = 100._r8
        else
           h2osno_col(c) = 0._r8

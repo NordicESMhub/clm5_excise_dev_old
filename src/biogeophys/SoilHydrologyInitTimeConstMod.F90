@@ -48,7 +48,9 @@ contains
     use clm_varpar      , only : nlevsoi, nlevgrnd, nlevsno, nlevlak, nlevurb, nlayer, nlayert 
     use clm_varcon      , only : zsoi, dzsoi, zisoi, spval, nlvic, dzvic, pc, grlnd
     use clm_varcon      , only : aquifer_water_baseline
-    use landunit_varcon , only : istwet, istsoil, istdlak, istcrop, istice_mec
+!KSA2019+++
+    use landunit_varcon , only : istwet, istsoil, istsoil_li, istsoil_mi, istsoil_hi, istdlak, istcrop, istice_mec
+!KSA2019---
     use column_varcon   , only : icol_shadewall, icol_road_perv, icol_road_imperv, icol_roof, icol_sunwall
     use fileutils       , only : getfil
     use organicFileMod  , only : organicrd 
