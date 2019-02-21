@@ -879,7 +879,7 @@ contains
                do j = 1, nlevs
                   if (col%zi(c,j) >= 1._r8 .and. col%zi(c,j) <= 3._r8) then
 !                  if (col%zi(c,j) <= 4._r8) then
-                     this%excess_ice_col(c,j) = col%dz(c,j)*denice*0._r8    !low excess ice (5% and tunable)
+                     this%excess_ice_col(c,j) = col%dz(c,j)*denice*0.01    !low excess ice (1% and tunable)
                   else
                      this%excess_ice_col(c,j) = 0.0_r8
                   endif
@@ -890,26 +890,26 @@ contains
 			   do j = 1, nlevs
                   if (col%zi(c,j) >= 1._r8 .and. col%zi(c,j) <= 3._r8) then
 !                  if (col%zi(c,j) <= 4._r8) then
-                     this%excess_ice_col(c,j) = col%dz(c,j)*denice*0._r8   ! medium excess ice (15% and tunable)	
+                     this%excess_ice_col(c,j) = col%dz(c,j)*denice*0.15   ! medium excess ice (15% and tunable)	
                   else
                      this%excess_ice_col(c,j) = 0.0_r8
                   endif
                   this%init_exice(c,j) = 0.0_r8
                   this%init_exice(c,j) = this%excess_ice_col(c,j)
                end do
-			else if (lun%itype(l) == istsoil_hi) then
-			    do j = 1, nlevs
+	       	else if (lun%itype(l) == istsoil_hi) then
+		 do j = 1, nlevs   	 
                   if (col%zi(c,j) >= 1._r8 .and. col%zi(c,j) <= 3._r8) then
 !                  if (col%zi(c,j) <= 4._r8) then
-                     this%excess_ice_col(c,j) = col%dz(c,j)*denice*0._r8    !high excess ice (25% and tunable)
+                     this%excess_ice_col(c,j) = col%dz(c,j)*denice*0.25    !high excess ice (25% and tunable)
                   else
                      this%excess_ice_col(c,j) = 0.0_r8
                   endif
                   this%init_exice(c,j) = 0.0_r8
                   this%init_exice(c,j) = this%excess_ice_col(c,j)
-               end do
-			else 
-			    this%init_exice(c,j) = 0.0_r8
+               	 end do
+		else 
+		    this%init_exice(c,j) = 0.0_r8
                 this%init_exice(c,j) = this%excess_ice_col(c,j)
             endif
          endif
