@@ -1,3 +1,4 @@
+! -*- mode: f90; indent-tabs-mode: nil; f90-do-indent:3; f90-if-indent:3; f90-type-indent:3; f90-program-indent:2; f90-associate-indent:0; f90-continuation-indent:5  -*-
 module atm2lndMod
 
 #include "shr_assert.h"
@@ -17,6 +18,8 @@ module atm2lndMod
   use abortutils     , only : endrun
   use decompMod      , only : bounds_type
   use atm2lndType    , only : atm2lnd_type
+  use WaterstateType , only : waterstate_type !KSA2019
+  use LandunitType   , only : lun  !KSA2019
   use TopoMod        , only : topo_type
   use filterColMod   , only : filter_col_type
   use LandunitType   , only : lun                
@@ -43,6 +46,7 @@ module atm2lndMod
   private :: downscale_longwave               ! Downscale longwave radiation from gridcell to column
   private :: build_normalization              ! Compute normalization factors so that downscaled fields are conservative
   private :: check_downscale_consistency      ! Check consistency of downscaling
+  private :: LateralSnowFlux                  ! Scale solid precipitation based on excess ice difference !KSA2019
 
   character(len=*), parameter, private :: sourcefile = &
        __FILE__
@@ -52,7 +56,7 @@ contains
 
   !-----------------------------------------------------------------------
   subroutine downscale_forcings(bounds, &
-       topo_inst, glc_behavior, atm2lnd_inst, &
+       topo_inst, glc_behavior, atm2lnd_inst, waterstate_inst, &
        eflx_sh_precip_conversion, qflx_runoff_rain_to_snow_conversion)
     !
     ! !DESCRIPTION:
@@ -79,6 +83,7 @@ contains
     type(bounds_type)  , intent(in)    :: bounds  
     class(topo_type)   , intent(in)    :: topo_inst
     type(glc_behavior_type), intent(in) :: glc_behavior
+    type(waterstate_type) , intent(inout) :: waterstate_inst
     type(atm2lnd_type) , intent(inout) :: atm2lnd_inst
     real(r8)           , intent(out)   :: eflx_sh_precip_conversion(bounds%begc:) ! sensible heat flux from precipitation conversion (W/m**2) [+ to atm]
     real(r8)           , intent(inout) :: qflx_runoff_rain_to_snow_conversion(bounds%begc:) ! runoff flux from rain-to-snow conversion, when this conversion leads to immediate runoff rather than snow (mm H2O /s)
@@ -216,6 +221,9 @@ contains
            eflx_sh_precip_conversion(bounds%begc:bounds%endc), &
            qflx_runoff_rain_to_snow_conversion(bounds%begc:bounds%endc))
 
+!KSA2019 Start      
+      call LateralSnowFlux(bounds, atm2lnd_inst, waterstate_inst)
+!KSA2019 End
       call downscale_longwave(bounds, downscale_filter_c, topo_inst, atm2lnd_inst)
 
       call check_downscale_consistency(bounds, atm2lnd_inst)
@@ -428,6 +436,116 @@ contains
 
   end subroutine sens_heat_from_precip_conversion
 
+!KSA2019 Start
+  !-----------------------------------------------------------------------
+  subroutine LateralSnowFlux(bounds, atm2lnd_inst, waterstate_inst)
+    !
+    ! !DESCRIPTION:
+    ! Scale solid precipitation between tiled 'veg' landunits with 
+    ! different excess   ice amounts (microtopograpy). See Aas et al.,
+    ! 2019 (TC).
+    !
+    ! !USES:
+    use clm_varcon               , only : denice  
+    use landunit_varcon          , only : istsoil_mi, istsoil_hi
+    !
+    ! !ARGUMENTS:
+!    real(r8), intent(inout):: snow_new        ! [(mm water equivalent)/s]
+    type(bounds_type)     , intent(in)    :: bounds
+    type(atm2lnd_type)    , intent(inout) :: atm2lnd_inst
+    type(waterstate_type) , intent(inout)    :: waterstate_inst
+    !
+    ! !LOCAL VARIABLES:
+    integer  :: c,l,g,fc     ! indices
+    real(r8) :: Z_hi,Z_mi    ! elevation of snow+soil for interacting tiles, relative to noice,nosno surface. (m)
+    real(r8) :: DZhimi       ! elevation difference (hi-mi) (m).
+    real(r8) :: Rscale_mi    ! 
+    real(r8) :: Rscale_hi    ! 
+    real(r8) :: SD_mi        ! snow depth mi (m) 
+    real(r8) :: SD_hi        ! snow depth hi (m)
+    real(r8) :: Pct_land_mi  ! 
+    real(r8) :: Pct_land_hi  !     
+!    real(r8) :: dz2(bounds%begc:bounds%endc,-nlevsno+1:nlevgrnd)   ! used in computing excess_ice effects
+!    real(r8) :: z2(bounds%begc:bounds%endc,-nlevsno+1:nlevgrnd)    ! used in computing excess_ice effects
+!    real(r8) :: zi2(bounds%begc:bounds%endc,-nlevsno+0:nlevgrnd)   ! used in computing excess_ice effects
+    real(r8), parameter :: mm_to_m = 1.e-3_r8  ! multiply by this to convert from mm to m
+    real(r8), parameter :: DZ_lim = 0.05_r8   ! minimum elevation difference for snow redist (m)
+    real(r8), parameter :: SD_lim = 0.05_r8   ! minimum snow depth to reach before snow is redistributed (m)
+
+    character(len=*), parameter :: subname = 'LateralSnowFlux'
+    !-----------------------------------------------------------------------
+    associate(                                                                & 
+         forc_snow_c             => atm2lnd_inst%forc_snow_downscaled_col   , & ! Output: [real(r8) (:)]  snow rate [mm/s]
+         excess_ice              => waterstate_inst%excess_ice_col          , & ! Input:  [real(r8) (:)   ]  excess soil ice (kg/m2)
+         snow_depth              => waterstate_inst%snow_depth_col          , & ! Input:  [real(r8) (:)   ]  snow height (m)                          
+
+!         qflx_h2osno_lateral     => %qflx_h2osno_lateral     , & ! Input:  [real(r8) (:)   ]  traffic sensible heat flux (W/m**2)           
+!         pct_landunit            => subgrid_weights_diagnostics%pct_landunit, &
+         
+         begc                    =>    bounds%begc                          , &
+         endc                    =>    bounds%endc                            &
+         )
+         
+!    write(iulog,*) 'Start of LateralSnowFlux, forc_snow_c=', forc_snow_c   
+
+    Z_mi = 0._r8
+    Z_hi = 0._r8
+    
+    ! Calculate initial elevation difference for hi and mi
+    do c = bounds%begc, bounds%endc
+       if (col%active(c)) then
+          g = col%gridcell(c)
+          l = col%landunit(c)      
+          if (lun%itype(l) == istsoil_hi) then
+             SD_hi = snow_depth(c)
+             Z_hi  = sum(excess_ice(c,:))/denice + SD_hi
+             Pct_land_hi = lun%wtgcell(l) 
+          else if (lun%itype(l) == istsoil_mi) then
+             SD_mi = snow_depth(c)
+             Z_mi  = sum(excess_ice(c,:))/denice + SD_mi
+             Pct_land_mi = lun%wtgcell(l) 
+          end if
+       end if
+    end do
+    DZhimi = Z_hi - Z_mi
+
+    !Calculate scaling factor for hi and mi
+    IF (min(SD_mi,SD_hi) < SD_lim .or. ABS(DZhimi) < DZ_lim) THEN !No redist if one tile has less snow than SDLIM or diff less than DZ_lim
+       Rscale_mi = 1.0_r8
+       Rscale_hi = 1.0_r8
+!       write(iulog,*) 'In LateralSnowFlux, path A', SD_mi, SD_hi, SD_lim, Z_mi, Z_hi, DZhimi
+    ELSEIF ( Z_mi > Z_hi ) then !tile MI more than 5 cm higher than tile HI
+       Rscale_mi = 0.0_r8
+       Rscale_hi = 1.0_r8 + Pct_land_mi / Pct_land_hi 
+!       write(iulog,*) 'In LateralSnowFlux, path B', SD_mi, SD_hi, SD_lim, Z_mi, Z_hi, DZhimi
+!TODO, KSA2019: include maximum scaling factor in case of very different areas!
+!       redistfact(I,3,J)=min(redistfact(I,3,J),10.0) !maximum redistfact=10.
+    ELSE                !tile MI more than 5 cm higher than tile HI
+       Rscale_mi = 1.0_r8 + Pct_land_hi / Pct_land_mi                  
+       Rscale_hi = 0.0_r8 
+!       write(iulog,*) 'In LateralSnowFlux, path C', SD_mi, SD_hi, SD_lim, Z_mi, Z_hi, DZhimi
+!       Rscale_mi = min(redistfact(I,2,J),10.0) !maximum redistfact=10.
+    ENDIF
+
+    !Scale solid precipitation
+    do c = bounds%begc, bounds%endc
+       if (col%active(c)) then
+          l = col%landunit(c)      
+          if (lun%itype(l) == istsoil_hi) then
+             forc_snow_c(c) = forc_snow_c(c) * Rscale_hi
+          elseif (lun%itype(l) == istsoil_mi) then
+             forc_snow_c(c) = forc_snow_c(c) * Rscale_mi
+          end if
+       end if
+    end do
+!    write(iulog,*) 'End of LateralSnowFlux, forc_snow_c=', forc_snow_c
+!    write(iulog,*) 'End of LateralSnowFlux, lun%wtgcell=', lun%wtgcell
+    
+    end associate
+
+
+  end subroutine LateralSnowFlux
+!KSA2019 End
 
   !-----------------------------------------------------------------------
   subroutine downscale_longwave(bounds, downscale_filter_c, &

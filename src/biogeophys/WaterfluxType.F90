@@ -77,6 +77,7 @@ module WaterfluxType
      real(r8), pointer :: qflx_drain_col           (:)   ! col sub-surface runoff (mm H2O /s)
      real(r8), pointer :: qflx_top_soil_col        (:)   ! col net water input into soil from top (mm/s)
      real(r8), pointer :: qflx_h2osfc_to_ice_col   (:)   ! col conversion of h2osfc to ice
+     real(r8), pointer :: qflx_h2osno_lateral      (:)   ! col Lateral snow flux !KSA2019
      real(r8), pointer :: qflx_h2osfc_surf_col     (:)   ! col surface water runoff
      real(r8), pointer :: qflx_snow_h2osfc_col     (:)   ! col snow falling on surface water
      real(r8), pointer :: qflx_drain_perched_col   (:)   ! col sub-surface runoff from perched wt (mm H2O /s)
@@ -219,6 +220,7 @@ contains
     allocate(this%qflx_drain_col           (begc:endc))              ; this%qflx_drain_col           (:)   = nan
     allocate(this%qflx_top_soil_col        (begc:endc))              ; this%qflx_top_soil_col        (:)   = nan
     allocate(this%qflx_h2osfc_to_ice_col   (begc:endc))              ; this%qflx_h2osfc_to_ice_col   (:)   = nan
+    allocate(this%qflx_h2osno_lateral      (begc:endc))              ; this%qflx_h2osno_lateral      (:)   = nan !KSA2019
     allocate(this%qflx_h2osfc_surf_col     (begc:endc))              ; this%qflx_h2osfc_surf_col     (:)   = nan
     allocate(this%qflx_snow_h2osfc_col     (begc:endc))              ; this%qflx_snow_h2osfc_col     (:)   = nan
     allocate(this%qflx_snomelt_col         (begc:endc))              ; this%qflx_snomelt_col         (:)   = nan
@@ -294,6 +296,20 @@ contains
     call hist_addfld1d (fname='QOVER',  units='mm/s',  &
          avgflag='A', long_name='surface runoff', &
          ptr_col=this%qflx_surf_col, c2l_scale_type='urbanf')
+!KSA2019 Start
+    call hist_addfld1d (fname='QOVER_NI',  units='mm/s',  &
+         avgflag='A', long_name='surface runoff veg_ni', &
+         ptr_col=this%qflx_surf_col, c2l_scale_type='urbanf', l2g_scale_type='veg_ni')
+    call hist_addfld1d (fname='QOVER_LI',  units='mm/s',  &
+         avgflag='A', long_name='surface runoff veg_li', &
+         ptr_col=this%qflx_surf_col, c2l_scale_type='urbanf', l2g_scale_type='veg_li')
+    call hist_addfld1d (fname='QOVER_MI',  units='mm/s',  &
+         avgflag='A', long_name='surface runoff veg_mi', &
+         ptr_col=this%qflx_surf_col, c2l_scale_type='urbanf', l2g_scale_type='veg_mi')
+    call hist_addfld1d (fname='QOVER_HI',  units='mm/s',  &
+         avgflag='A', long_name='surface runoff veg_hi', &
+         ptr_col=this%qflx_surf_col, c2l_scale_type='urbanf', l2g_scale_type='veg_hi')
+ !KSA2019 End
 
     this%qflx_qrgwl_col(begc:endc) = spval
     call hist_addfld1d (fname='QRGWL',  units='mm/s',  &
@@ -327,6 +343,22 @@ contains
          avgflag='A', &
          long_name='total liquid runoff not including correction for land use change', &
          ptr_col=this%qflx_runoff_col, c2l_scale_type='urbanf')
+
+!KSA2019 Start
+    call hist_addfld1d (fname='QRUNOFF_NI',  units='mm/s',  &
+         avgflag='A', long_name='total liquid runoff veg_ni', &	
+         ptr_col=this%qflx_runoff_col, c2l_scale_type='urbanf', l2g_scale_type='veg_ni')
+    call hist_addfld1d (fname='QRUNOFF_LI',  units='mm/s',  &
+         avgflag='A', long_name='total liquid runoff veg_li', &
+         ptr_col=this%qflx_runoff_col, c2l_scale_type='urbanf', l2g_scale_type='veg_li')
+    call hist_addfld1d (fname='QRUNOFF_MI',  units='mm/s',  &
+         avgflag='A', long_name='total liquid runoff veg_mi', &
+         ptr_col=this%qflx_runoff_col, c2l_scale_type='urbanf', l2g_scale_type='veg_mi')
+    call hist_addfld1d (fname='QRUNOFF_HI',  units='mm/s',  &
+         avgflag='A', long_name='total liquid runoff veg_hi', &
+         ptr_col=this%qflx_runoff_col, c2l_scale_type='urbanf', l2g_scale_type='veg_hi')
+!KSA2019 End
+
 
     call hist_addfld1d (fname='QRUNOFF_ICE', units='mm/s', avgflag='A', &
          long_name='total liquid runoff not incl corret for LULCC (ice landunits only)', &
@@ -394,7 +426,7 @@ contains
     this%qflx_h2osfc_to_ice_col(begc:endc) = spval
     call hist_addfld1d (fname='QH2OSFC_TO_ICE',  units='mm/s',  &
          avgflag='A', long_name='surface water converted to ice', &
-         ptr_col=this%qflx_h2osfc_to_ice_col, default='inactive')
+         ptr_col=this%qflx_h2osfc_to_ice_col) !KSA2019 made active
 
     this%qflx_prec_intr_patch(begp:endp) = spval
     call hist_addfld1d (fname='QINTR', units='mm/s',  &
@@ -511,6 +543,22 @@ contains
     call hist_addfld1d (fname='QDRAI_PERCH',  units='mm/s',  &
          avgflag='A', long_name='perched wt drainage', &
          ptr_col=this%qflx_drain_perched_col, c2l_scale_type='urbanf')
+
+!KSA2019 Start
+    call hist_addfld1d (fname='QDRAI_PERCH_NI',  units='mm/s',  &
+         avgflag='A', long_name='perched wt drainage (only veg_ni)', &
+         ptr_col=this%qflx_drain_perched_col, c2l_scale_type='urbanf', l2g_scale_type='veg_ni')
+    call hist_addfld1d (fname='QDRAI_PERCH_LI',  units='mm/s',  &
+         avgflag='A', long_name='perched wt drainage (only veg_li)', &
+         ptr_col=this%qflx_drain_perched_col, c2l_scale_type='urbanf', l2g_scale_type='veg_li')
+    call hist_addfld1d (fname='QDRAI_PERCH_MI',  units='mm/s',  &
+         avgflag='A', long_name='perched wt drainage (only veg_mi)', &
+         ptr_col=this%qflx_drain_perched_col, c2l_scale_type='urbanf', l2g_scale_type='veg_mi')
+    call hist_addfld1d (fname='QDRAI_PERCH_HI',  units='mm/s',  &
+         avgflag='A', long_name='perched wt drainage (only veg_hi)', &
+         ptr_col=this%qflx_drain_perched_col, c2l_scale_type='urbanf', l2g_scale_type='veg_hi')
+!KSA2019 End
+
 
     this%qflx_rsub_sat_col(begc:endc) = spval
     call hist_addfld1d (fname='QDRAI_XS',  units='mm/s',  &

@@ -199,10 +199,41 @@ contains
          avgflag='A', long_name='water table depth (vegetated landunits only)', &
          ptr_col=this%zwt_col, l2g_scale_type='veg')
 
+!KSA2019 Start
+    call hist_addfld1d (fname='ZWT_NI',  units='m',  &
+         avgflag='A', long_name='water table depth (veg_ni landunits only)', &
+         ptr_col=this%zwt_col, l2g_scale_type='veg_ni')
+    call hist_addfld1d (fname='ZWT_LI',  units='m',  &
+         avgflag='A', long_name='water table depth (veg_li landunits only)', &
+         ptr_col=this%zwt_col, l2g_scale_type='veg_li')
+    call hist_addfld1d (fname='ZWT_MI',  units='m',  &
+         avgflag='A', long_name='water table depth (veg_mi landunits only)', &
+         ptr_col=this%zwt_col, l2g_scale_type='veg_mi')
+    call hist_addfld1d (fname='ZWT_HI',  units='m',  &
+         avgflag='A', long_name='water table depth (veg_hi landunits only)', &
+         ptr_col=this%zwt_col, l2g_scale_type='veg_hi')
+!KSA2019 End
+
+
     this%zwt_perched_col(begc:endc) = spval
     call hist_addfld1d (fname='ZWT_PERCH',  units='m',  &
          avgflag='A', long_name='perched water table depth (vegetated landunits only)', &
          ptr_col=this%zwt_perched_col, l2g_scale_type='veg')
+
+!KSA2019 Start
+    call hist_addfld1d (fname='ZWT_PERCH_NI',  units='m',  &
+         avgflag='A', long_name='perched water table depth (veg_ni landunits only)', &
+         ptr_col=this%zwt_perched_col, l2g_scale_type='veg_ni')
+    call hist_addfld1d (fname='ZWT_PERCH_LI',  units='m',  &
+         avgflag='A', long_name='perched water table depth (veg_li landunits only)', &
+         ptr_col=this%zwt_perched_col, l2g_scale_type='veg_li')
+    call hist_addfld1d (fname='ZWT_PERCH_MI',  units='m',  &
+         avgflag='A', long_name='perched water table depth (veg_mi landunits only)', &
+         ptr_col=this%zwt_perched_col, l2g_scale_type='veg_mi')
+    call hist_addfld1d (fname='ZWT_PERCH_HI',  units='m',  &
+         avgflag='A', long_name='perched water table depth (veg_hi landunits only)', &
+         ptr_col=this%zwt_perched_col, l2g_scale_type='veg_hi')
+!KSA2019 End
 
   end subroutine InitHistory
 

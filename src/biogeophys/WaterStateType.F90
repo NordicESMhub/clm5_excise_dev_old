@@ -1,3 +1,4 @@
+
 module WaterstateType
 
 #include "shr_assert.h"
@@ -304,6 +305,24 @@ contains
          avgflag='A', long_name='volumetric soil water (vegetated landunits only)', &
          ptr_col=this%h2osoi_vol_col, l2g_scale_type='veg')
 
+!KSA2019 Start
+    call hist_addfld2d (fname='H2OSOI_NI',  units='mm3/mm3', type2d='levsoi', &
+         avgflag='A', long_name='volumetric soil water (ni_veg landunits only)', &
+         ptr_col=this%h2osoi_vol_col, c2l_scale_type='urbanf', l2g_scale_type='veg_ni')
+
+    call hist_addfld2d (fname='H2OSOI_LI',  units='mm3/mm3', type2d='levsoi', &
+         avgflag='A', long_name='volumetric soil water (li_veg landunits only)', &
+         ptr_col=this%h2osoi_vol_col, c2l_scale_type='urbanf', l2g_scale_type='veg_li')
+
+    call hist_addfld2d (fname='H2OSOI_MI',  units='mm3/mm3', type2d='levsoi', &
+         avgflag='A', long_name='volumetric soil water (mi_veg landunits only)', &
+         ptr_col=this%h2osoi_vol_col, c2l_scale_type='urbanf', l2g_scale_type='veg_mi')
+
+    call hist_addfld2d (fname='H2OSOI_HI',  units='mm3/mm3', type2d='levsoi', &
+         avgflag='A', long_name='volumetric soil water (hi_veg landunits only)', &
+         ptr_col=this%h2osoi_vol_col, c2l_scale_type='urbanf', l2g_scale_type='veg_hi')
+!KSA2019 End
+
 !    this%h2osoi_liq_col(begc:endc,:) = spval
 !    call hist_addfld2d (fname='SOILLIQ',  units='kg/m2', type2d='levgrnd', &
 !         avgflag='A', long_name='soil liquid water (vegetated landunits only)', &
@@ -329,10 +348,42 @@ contains
          avgflag='A', long_name='vertically summed soil liquid water (veg landunits only)', &
          ptr_col=this%h2osoi_liq_tot_col, set_urb=spval, set_lake=spval, l2g_scale_type='veg')
 
+!KSA2019 Start, Add tiled ouput
+    call hist_addfld1d (fname='TOTSOILLIQ_NI',  units='kg/m2', &
+         avgflag='A', long_name='vertically summed soil liquid water (veg_ni landunits only)', &
+         ptr_col=this%h2osoi_liq_tot_col, set_urb=spval, set_lake=spval, l2g_scale_type='veg_ni')
+
+    call hist_addfld1d (fname='TOTSOILLIQ_LI',  units='kg/m2', &
+         avgflag='A', long_name='vertically summed soil liquid water (veg_li landunits only)', &
+         ptr_col=this%h2osoi_liq_tot_col, set_urb=spval, set_lake=spval, l2g_scale_type='veg_li')
+
+    call hist_addfld1d (fname='TOTSOILLIQ_MI',  units='kg/m2', &
+         avgflag='A', long_name='vertically summed soil liquid water (veg_mi landunits only)', &
+         ptr_col=this%h2osoi_liq_tot_col, set_urb=spval, set_lake=spval, l2g_scale_type='veg_mi')
+
+    call hist_addfld1d (fname='TOTSOILLIQ_HI',  units='kg/m2', &
+         avgflag='A', long_name='vertically summed soil liquid water (veg_hi landunits only)', &
+         ptr_col=this%h2osoi_liq_tot_col, set_urb=spval, set_lake=spval, l2g_scale_type='veg_hi')
+!KSA2019 End
+
     this%h2osoi_ice_tot_col(begc:endc) = spval
     call hist_addfld1d (fname='TOTSOILICE',  units='kg/m2', &
          avgflag='A', long_name='vertically summed soil cie (veg landunits only)', &
          ptr_col=this%h2osoi_ice_tot_col, set_urb=spval, set_lake=spval, l2g_scale_type='veg')
+!KSA2019 Start, Add tiled ouput
+    call hist_addfld1d (fname='TOTSOILICE_NI',  units='kg/m2', &
+         avgflag='A', long_name='vertically summed soil cie (veg_ni landunits only)', &
+         ptr_col=this%h2osoi_ice_tot_col, set_urb=spval, set_lake=spval, l2g_scale_type='veg_ni')
+    call hist_addfld1d (fname='TOTSOILICE_LI',  units='kg/m2', &
+         avgflag='A', long_name='vertically summed soil cie (veg_li landunits only)', &
+         ptr_col=this%h2osoi_ice_tot_col, set_urb=spval, set_lake=spval, l2g_scale_type='veg_li')
+    call hist_addfld1d (fname='TOTSOILICE_MI',  units='kg/m2', &
+         avgflag='A', long_name='vertically summed soil cie (veg_mi landunits only)', &
+         ptr_col=this%h2osoi_ice_tot_col, set_urb=spval, set_lake=spval, l2g_scale_type='veg_mi')
+    call hist_addfld1d (fname='TOTSOILICE_HI',  units='kg/m2', &
+         avgflag='A', long_name='vertically summed soil cie (veg_hi landunits only)', &
+         ptr_col=this%h2osoi_ice_tot_col, set_urb=spval, set_lake=spval, l2g_scale_type='veg_hi')
+!KSA2019 End
 
     this%h2ocan_patch(begp:endp) = spval 
     call hist_addfld1d (fname='H2OCAN', units='mm',  &
@@ -357,6 +408,24 @@ contains
     call hist_addfld1d (fname='H2OSNO',  units='mm',  &
          avgflag='A', long_name='snow depth (liquid water)', &
          ptr_col=this%h2osno_col, c2l_scale_type='urbanf')
+
+!KSA2019 Start, Add tiled ouput
+    call hist_addfld1d (fname='H2OSNO_NI',  units='mm',  &
+         avgflag='A', long_name='snow depth (liquid water) in No Exice tile', &
+         ptr_col=this%h2osno_col, c2l_scale_type='urbanf', l2g_scale_type='veg_ni')
+
+    call hist_addfld1d (fname='H2OSNO_LI',  units='mm',  &
+         avgflag='A', long_name='snow depth (liquid water) in Li Exice tile', &
+         ptr_col=this%h2osno_col, c2l_scale_type='urbanf', l2g_scale_type='veg_li')
+
+    call hist_addfld1d (fname='H2OSNO_MI',  units='mm',  &
+         avgflag='A', long_name='snow depth (liquid water) in Mi Exice tile', &
+         ptr_col=this%h2osno_col, c2l_scale_type='urbanf', l2g_scale_type='veg_mi')
+
+    call hist_addfld1d (fname='H2OSNO_HI',  units='mm',  &
+         avgflag='A', long_name='snow depth (liquid water) in Hi Exice tile', &
+         ptr_col=this%h2osno_col, c2l_scale_type='urbanf', l2g_scale_type='veg_hi')
+!KSA2019 End
 
     call hist_addfld1d (fname='H2OSNO_ICE', units='mm',  &
          avgflag='A', long_name='snow depth (liquid water, ice landunits only)', &
@@ -387,6 +456,20 @@ contains
     call hist_addfld1d (fname='H2OSFC',  units='mm',  &
          avgflag='A', long_name='surface water depth', &
          ptr_col=this%h2osfc_col)
+!KSA2019 Start
+    call hist_addfld1d (fname='H2OSFC_NI',  units='mm',  &
+         avgflag='A', long_name='surface water depth in Hi Exice tile', &
+         ptr_col=this%h2osfc_col, c2l_scale_type='urbanf', l2g_scale_type='veg_ni')
+    call hist_addfld1d (fname='H2OSFC_LI',  units='mm',  &
+         avgflag='A', long_name='surface water depth in Hi Exice tile', &
+         ptr_col=this%h2osfc_col, c2l_scale_type='urbanf', l2g_scale_type='veg_li')
+    call hist_addfld1d (fname='H2OSFC_MI',  units='mm',  &
+         avgflag='A', long_name='surface water depth in Hi Exice tile', &
+         ptr_col=this%h2osfc_col, c2l_scale_type='urbanf', l2g_scale_type='veg_mi')
+    call hist_addfld1d (fname='H2OSFC_HI',  units='mm',  &
+         avgflag='A', long_name='surface water depth in Hi Exice tile', &
+         ptr_col=this%h2osfc_col, c2l_scale_type='urbanf', l2g_scale_type='veg_hi')	 
+!KSA2019 End
 
     this%tws_grc(begg:endg) = spval
     call hist_addfld1d (fname='TWS',  units='mm',  &
@@ -440,6 +523,20 @@ contains
     call hist_addfld1d (fname='FH2OSFC',  units='unitless',  &
          avgflag='A', long_name='fraction of ground covered by surface water', &
          ptr_col=this%frac_h2osfc_col)
+!KSA2019 Start
+    call hist_addfld1d (fname='FH2OSFC_NI',  units='unitless',  &
+         avgflag='A', long_name='fraction of ground covered by surface water NI', &
+         ptr_col=this%frac_h2osfc_col, c2l_scale_type='urbanf', l2g_scale_type='veg_ni')
+    call hist_addfld1d (fname='FH2OSFC_LI',  units='unitless',  &
+         avgflag='A', long_name='fraction of ground covered by surface water LI', &
+         ptr_col=this%frac_h2osfc_col, c2l_scale_type='urbanf', l2g_scale_type='veg_li')
+    call hist_addfld1d (fname='FH2OSFC_MI',  units='unitless',  &
+         avgflag='A', long_name='fraction of ground covered by surface water MI', &
+         ptr_col=this%frac_h2osfc_col, c2l_scale_type='urbanf', l2g_scale_type='veg_mi')
+    call hist_addfld1d (fname='FH2OSFC_HI',  units='unitless',  &
+         avgflag='A', long_name='fraction of ground covered by surface water HI', &
+         ptr_col=this%frac_h2osfc_col, c2l_scale_type='urbanf', l2g_scale_type='veg_hi')
+!KSA2019 End
 
     this%frac_h2osfc_nosnow_col(begc:endc) = spval
     call hist_addfld1d (fname='FH2OSFC_NOSNOW',  units='unitless',  &
@@ -496,6 +593,21 @@ contains
     call hist_addfld1d (fname='SNOW_DEPTH',  units='m',  &
          avgflag='A', long_name='snow height of snow covered area', &
          ptr_col=this%snow_depth_col, c2l_scale_type='urbanf')
+
+!KSA2019 Start
+    call hist_addfld1d (fname='SNOW_DEPTH_NI',  units='m',  &
+         avgflag='A', long_name='snow height of snow covered area', &
+         ptr_col=this%snow_depth_col, c2l_scale_type='urbanf', l2g_scale_type='veg_ni')
+    call hist_addfld1d (fname='SNOW_DEPTH_LI',  units='m',  &
+         avgflag='A', long_name='snow height of snow covered area', &
+         ptr_col=this%snow_depth_col, c2l_scale_type='urbanf', l2g_scale_type='veg_li')
+    call hist_addfld1d (fname='SNOW_DEPTH_MI',  units='m',  &
+         avgflag='A', long_name='snow height of snow covered area', &
+         ptr_col=this%snow_depth_col, c2l_scale_type='urbanf', l2g_scale_type='veg_mi')
+    call hist_addfld1d (fname='SNOW_DEPTH_HI',  units='m',  &
+         avgflag='A', long_name='snow height of snow covered area', &
+         ptr_col=this%snow_depth_col, c2l_scale_type='urbanf', l2g_scale_type='veg_hi')
+!KSA2019 End
 
     call hist_addfld1d (fname='SNOW_DEPTH_ICE', units='m',  &
          avgflag='A', long_name='snow height of snow covered area (ice landunits only)', &
@@ -610,6 +722,20 @@ contains
     call hist_addfld2d (fname='EXCESS_ICE',  units='kg/m2', type2d='levgrnd', &
          avgflag='A', long_name='excess soil ice (vegetated landunits only)', &
          ptr_col=this%excess_ice_col, l2g_scale_type='veg')
+
+    call hist_addfld2d (fname='EXCESS_ICE_NI',  units='kg/m2', type2d='levgrnd', &
+         avgflag='A', long_name='excess soil ice (veg_ni landunits only)', &
+         ptr_col=this%excess_ice_col, c2l_scale_type='urbanf', l2g_scale_type='veg_ni')
+    call hist_addfld2d (fname='EXCESS_ICE_LI',  units='kg/m2', type2d='levgrnd', &
+         avgflag='A', long_name='excess soil ice (veg_li landunits only)', &
+         ptr_col=this%excess_ice_col, c2l_scale_type='urbanf', l2g_scale_type='veg_li')
+    call hist_addfld2d (fname='EXCESS_ICE_MI',  units='kg/m2', type2d='levgrnd', &
+         avgflag='A', long_name='excess soil ice (veg_mi landunits only)', &
+         ptr_col=this%excess_ice_col, c2l_scale_type='urbanf', l2g_scale_type='veg_mi')
+    call hist_addfld2d (fname='EXCESS_ICE_HI',  units='kg/m2', type2d='levgrnd', &
+         avgflag='A', long_name='excess soil ice (veg_hi landunits only)', &
+         ptr_col=this%excess_ice_col, c2l_scale_type='urbanf', l2g_scale_type='veg_hi')
+
 
     this%exice_melt(begc:endc) = spval
     call hist_addfld1d (fname='EXICE_MELT',  units='m', &
@@ -877,9 +1003,9 @@ contains
             if (lun%itype(l) == istsoil_li) then
                nlevs = nlevgrnd
                do j = 1, nlevs
-                  if (col%zi(c,j) >= 1._r8 .and. col%zi(c,j) <= 3._r8) then
+                  if (col%zi(c,j) >= 1._r8 .and. col%zi(c,j) <= 4._r8) then
 !                  if (col%zi(c,j) <= 4._r8) then
-                     this%excess_ice_col(c,j) = col%dz(c,j)*denice*0.01    !low excess ice (1% and tunable)
+                     this%excess_ice_col(c,j) = col%dz(c,j)*denice*0.01_r8    !low excess ice (1% and tunable)
                   else
                      this%excess_ice_col(c,j) = 0.0_r8
                   endif
@@ -888,9 +1014,9 @@ contains
                end do
 			else if (lun%itype(l) == istsoil_mi) then
 			   do j = 1, nlevs
-                  if (col%zi(c,j) >= 1._r8 .and. col%zi(c,j) <= 3._r8) then
+                  if (col%zi(c,j) >= 1._r8 .and. col%zi(c,j) <= 4._r8) then
 !                  if (col%zi(c,j) <= 4._r8) then
-                     this%excess_ice_col(c,j) = col%dz(c,j)*denice*0.15   ! medium excess ice (15% and tunable)	
+                     this%excess_ice_col(c,j) = col%dz(c,j)*denice*0.25_r8   ! medium excess ice (15% and tunable)	
                   else
                      this%excess_ice_col(c,j) = 0.0_r8
                   endif
@@ -899,9 +1025,9 @@ contains
                end do
 	       	else if (lun%itype(l) == istsoil_hi) then
 		 do j = 1, nlevs   	 
-                  if (col%zi(c,j) >= 1._r8 .and. col%zi(c,j) <= 3._r8) then
+                  if (col%zi(c,j) >= 1._r8 .and. col%zi(c,j) <= 4._r8) then
 !                  if (col%zi(c,j) <= 4._r8) then
-                     this%excess_ice_col(c,j) = col%dz(c,j)*denice*0.25    !high excess ice (25% and tunable)
+                     this%excess_ice_col(c,j) = col%dz(c,j)*denice*0.5_r8    !high excess ice (25% and tunable)
                   else
                      this%excess_ice_col(c,j) = 0.0_r8
                   endif

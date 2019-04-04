@@ -55,7 +55,8 @@ contains
     !    -> Infiltration:          infiltration into surface soil layer
     !    -> SoilWater:             soil water movement between layers
     !          -> Tridiagonal      tridiagonal matrix solution
-    !    -> Drainage:              subsurface runoff
+    !	 -> LateralWaterFlux: 	   lateral water flux between interacting tiles KSA2019
+    !    -> Drainage:              subsurface runoff !KSA2019: moved to own subroutine?
     !    -> SnowCompaction:        compaction of snow layers
     !    -> CombineSnowLayers:     combine snow layers that are thinner than minimum
     !    -> DivideSnowLayers:      subdivide snow layers that are thicker than maximum
@@ -214,7 +215,8 @@ contains
 
       if (use_aquifer_layer()) then 
          call WaterTable(bounds, num_hydrologyc, filter_hydrologyc, num_urbanc, filter_urbanc, &
-              soilhydrology_inst, soilstate_inst, temperature_inst, waterstate_inst, waterflux_inst) 
+              soilhydrology_inst, soilstate_inst, temperature_inst, waterstate_inst, waterflux_inst)
+! 	      write(iulog,*) 'In call WaterTable block' !KSA2019
       else
 
          call PerchedWaterTable(bounds, num_hydrologyc, filter_hydrologyc, &
@@ -229,7 +231,7 @@ contains
               num_urbanc, filter_urbanc,&
               soilhydrology_inst, soilstate_inst, &
               waterstate_inst, waterflux_inst)
-         
+!	      write(iulog,*) 'In call PerchedWaterTable block' !KSA2019         
       endif
 
       ! Snow capping

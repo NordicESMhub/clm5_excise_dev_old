@@ -413,6 +413,21 @@ contains
          avgflag='A', long_name='soil temperature (vegetated landunits only)', &
          ptr_col=this%t_soisno_col, l2g_scale_type='veg')
 
+!KSA2019 Start
+    call hist_addfld2d (fname='TSOI_NI',  units='K', type2d='levgrnd', &
+         avgflag='A', long_name='soil temperature (veg_ni landunits only)', &
+         ptr_col=this%t_soisno_col, c2l_scale_type='urbanf', l2g_scale_type='veg_ni')
+    call hist_addfld2d (fname='TSOI_LI',  units='K', type2d='levgrnd', &
+         avgflag='A', long_name='soil temperature (veg_li landunits only)', &
+         ptr_col=this%t_soisno_col, c2l_scale_type='urbanf', l2g_scale_type='veg_li')
+    call hist_addfld2d (fname='TSOI_MI',  units='K', type2d='levgrnd', &
+         avgflag='A', long_name='soil temperature (veg_mi landunits only)', &
+         ptr_col=this%t_soisno_col, c2l_scale_type='urbanf', l2g_scale_type='veg_mi')
+    call hist_addfld2d (fname='TSOI_HI',  units='K', type2d='levgrnd', &
+         avgflag='A', long_name='soil temperature (veg_hi landunits only)', &
+         ptr_col=this%t_soisno_col, c2l_scale_type='urbanf', l2g_scale_type='veg_hi')
+!KSA2019 End
+
     call hist_addfld2d (fname='TSOI_ICE',  units='K', type2d='levgrnd', &
          avgflag='A', long_name='soil temperature (ice landunits only)', &
          ptr_col=this%t_soisno_col, l2g_scale_type='ice')

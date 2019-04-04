@@ -1338,6 +1338,16 @@ contains
 		scale_lookup(istsoil_hi) = 1.0_r8
 !Edit by Lei Cai--end
         scale_lookup(istcrop) = 1.0_r8
+!KSA2019 --Start
+     else if (l2g_scale_type == 'veg_ni') then
+        scale_lookup(istsoil) = 1.0_r8
+     else if (l2g_scale_type == 'veg_li') then
+        scale_lookup(istsoil_li) = 1.0_r8
+     else if (l2g_scale_type == 'veg_mi') then
+        scale_lookup(istsoil_mi) = 1.0_r8
+     else if (l2g_scale_type == 'veg_hi') then
+        scale_lookup(istsoil_hi) = 1.0_r8
+!KSA2019 --End
      else if (l2g_scale_type == 'ice') then
         scale_lookup(istice_mec) = 1.0_r8
      else if (l2g_scale_type == 'nonurb') then

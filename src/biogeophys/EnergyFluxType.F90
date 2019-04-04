@@ -54,6 +54,7 @@ module EnergyFluxType
      real(r8), pointer :: eflx_dynbal_grc         (:)   ! grc dynamic land cover change conversion energy flux (W/m**2)
      real(r8), pointer :: eflx_bot_col            (:)   ! col heat flux from beneath the soil or ice column (W/m**2)
      real(r8), pointer :: eflx_fgr12_col          (:)   ! col ground heat flux between soil layers 1 and 2 (W/m**2)
+     real(r8), pointer :: eflx_lateralheat_col    (:,:) ! col ground heat flux between tiles Mi and Hi (W/m**2) !KSA2019
      real(r8), pointer :: eflx_fgr_col            (:,:) ! col (rural) soil downward heat flux (W/m2) (1:nlevgrnd)  (pos upward; usually eflx_bot >= 0)
      real(r8), pointer :: eflx_building_heat_errsoi_col(:) ! col heat flux to interior surface of walls and roof for errsoi check (W m-2)
      real(r8), pointer :: eflx_urban_ac_col       (:)   ! col urban air conditioning flux (W/m**2)
@@ -216,6 +217,7 @@ contains
     allocate( this%eflx_snomelt_r_col      (begc:endc))             ; this%eflx_snomelt_r_col      (:)   = nan
     allocate( this%eflx_snomelt_u_col      (begc:endc))             ; this%eflx_snomelt_u_col      (:)   = nan
     allocate( this%eflx_fgr12_col          (begc:endc))             ; this%eflx_fgr12_col          (:)   = nan
+    allocate( this%eflx_lateralheat_col    (begc:endc, 1:nlevgrnd)) ; this%eflx_lateralheat_col    (:,:) = nan !KSA2019
     allocate( this%eflx_fgr_col            (begc:endc, 1:nlevgrnd)) ; this%eflx_fgr_col            (:,:) = nan
     allocate( this%eflx_building_heat_errsoi_col  (begc:endc))      ; this%eflx_building_heat_errsoi_col(:)= nan
     allocate( this%eflx_urban_ac_col       (begc:endc))             ; this%eflx_urban_ac_col       (:)   = nan
@@ -579,6 +581,21 @@ contains
     call hist_addfld1d (fname='DGNETDT', units='W/m^2/K', &
          avgflag='A', long_name='derivative of net ground heat flux wrt soil temp', &
          ptr_patch=this%dgnetdT_patch, default='inactive', c2l_scale_type='urbanf')
+
+!KSA2019 Start lateral heat flux code
+    this%eflx_lateralheat_col(begc:endc,:) = spval
+    call hist_addfld2d (fname='HHF',  units='W/m^2', type2d='levgrnd',  &
+         avgflag='A', long_name='heat flux between tiles Mi and Hi', &
+         ptr_col=this%eflx_lateralheat_col, set_lake=spval, default='inactive')
+
+    call hist_addfld2d (fname='HHF_MI',  units='W/m^2', type2d='levgrnd',  &
+         avgflag='A', long_name='heat flux to tile MI', &
+         ptr_col=this%eflx_lateralheat_col, c2l_scale_type='urbanf', l2g_scale_type='veg_mi')
+
+    call hist_addfld2d (fname='HHF_HI',  units='W/m^2', type2d='levgrnd',  &
+         avgflag='A', long_name='heat flux to tile HI', &
+         ptr_col=this%eflx_lateralheat_col, c2l_scale_type='urbanf', l2g_scale_type='veg_hi')
+!KSA2019 End lateral heat flux code
 
     this%eflx_fgr12_col(begc:endc) = spval
     call hist_addfld1d (fname='FGR12',  units='W/m^2',  &

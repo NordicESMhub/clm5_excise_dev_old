@@ -232,6 +232,20 @@ contains
        call hist_addfld1d (fname='ALT', units='m', &
             avgflag='A', long_name='current active layer thickness', &
             ptr_col=this%alt_col)
+!KSA2019 Start
+       call hist_addfld1d (fname='ALT_NI', units='m', &
+            avgflag='A', long_name='current active layer thickness ni_veg', &
+            ptr_col=this%alt_col, c2l_scale_type='urbanf', l2g_scale_type='veg_ni')
+       call hist_addfld1d (fname='ALT_LI', units='m', &
+            avgflag='A', long_name='current active layer thickness li_veg', &
+            ptr_col=this%alt_col, c2l_scale_type='urbanf', l2g_scale_type='veg_li')
+       call hist_addfld1d (fname='ALT_MI', units='m', &
+            avgflag='A', long_name='current active layer thickness mi_veg', &
+            ptr_col=this%alt_col, c2l_scale_type='urbanf', l2g_scale_type='veg_mi')
+       call hist_addfld1d (fname='ALT_HI', units='m', &
+            avgflag='A', long_name='current active layer thickness hi_veg', &
+            ptr_col=this%alt_col, c2l_scale_type='urbanf', l2g_scale_type='veg_hi')
+!KSA2019 End
 
        this%altmax_col(begc:endc) = spval
        call hist_addfld1d (fname='ALTMAX', units='m', &
