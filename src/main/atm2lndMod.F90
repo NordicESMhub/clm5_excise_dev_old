@@ -477,7 +477,8 @@ contains
     associate(                                                                & 
          forc_snow_c             => atm2lnd_inst%forc_snow_downscaled_col   , & ! Output: [real(r8) (:)]  snow rate [mm/s]
          excess_ice              => waterstate_inst%excess_ice_col          , & ! Input:  [real(r8) (:)   ]  excess soil ice (kg/m2)
-         snow_depth              => waterstate_inst%snow_depth_col          , & ! Input:  [real(r8) (:)   ]  snow height (m)                          
+         snowdp                  => waterstate_inst%snowdp_col             , & ! Input:  [real(r8) (:)   ]  area-averaged snow height (m)
+!         snow_depth              => waterstate_inst%snow_depth_col          , & ! Input:  [real(r8) (:)   ]  snow height (m)                          
 
 !         qflx_h2osno_lateral     => %qflx_h2osno_lateral     , & ! Input:  [real(r8) (:)   ]  traffic sensible heat flux (W/m**2)           
 !         pct_landunit            => subgrid_weights_diagnostics%pct_landunit, &
@@ -497,11 +498,11 @@ contains
           g = col%gridcell(c)
           l = col%landunit(c)      
           if (lun%itype(l) == istsoil_hi) then
-             SD_hi = snow_depth(c)
+             SD_hi = snowdp(c)  !Use area average snow depth!
              Z_hi  = sum(excess_ice(c,:))/denice + SD_hi
              Pct_land_hi = lun%wtgcell(l) 
           else if (lun%itype(l) == istsoil_mi) then
-             SD_mi = snow_depth(c)
+             SD_mi = snowdp(c)  !Use area average snow depth!
              Z_mi  = sum(excess_ice(c,:))/denice + SD_mi
              Pct_land_mi = lun%wtgcell(l) 
           end if

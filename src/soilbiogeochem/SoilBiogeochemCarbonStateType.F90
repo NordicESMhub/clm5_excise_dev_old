@@ -193,6 +193,21 @@ contains
             avgflag='A', long_name='total soil organic matter carbon', &
             ptr_col=this%totsomc_col)
 
+!KSA2019 Start
+       call hist_addfld1d (fname='TOTSOMC_NI', units='gC/m^2', &
+            avgflag='A', long_name='total soil organic matter carbon', &
+            ptr_col=this%totsomc_col, c2l_scale_type='urbanf', l2g_scale_type='veg_ni')
+       call hist_addfld1d (fname='TOTSOMC_LI', units='gC/m^2', &
+            avgflag='A', long_name='total soil organic matter carbon', &
+            ptr_col=this%totsomc_col, c2l_scale_type='urbanf', l2g_scale_type='veg_li')
+       call hist_addfld1d (fname='TOTSOMC_MI', units='gC/m^2', &
+            avgflag='A', long_name='total soil organic matter carbon', &
+            ptr_col=this%totsomc_col, c2l_scale_type='urbanf', l2g_scale_type='veg_mi')
+       call hist_addfld1d (fname='TOTSOMC_HI', units='gC/m^2', &
+            avgflag='A', long_name='total soil organic matter carbon', &
+            ptr_col=this%totsomc_col, c2l_scale_type='urbanf', l2g_scale_type='veg_hi')
+!KSA2019 End
+
        if ( nlevdecomp_full > 1 ) then
           this%totlitc_1m_col(begc:endc) = spval
           call hist_addfld1d (fname='TOTLITC_1m', units='gC/m^2', &
@@ -205,6 +220,22 @@ contains
           call hist_addfld1d (fname='TOTSOMC_1m', units='gC/m^2', &
                avgflag='A', long_name='total soil organic matter carbon to 1 meter depth', &
                ptr_col=this%totsomc_1m_col)
+
+!KSA2019 Start
+       call hist_addfld1d (fname='TOTSOMC_1m_NI', units='gC/m^2', &
+            avgflag='A', long_name='total soil organic matter carbon to 1 meter depth', &
+            ptr_col=this%totsomc_1m_col, c2l_scale_type='urbanf', l2g_scale_type='veg_ni')
+       call hist_addfld1d (fname='TOTSOMC_1m_LI', units='gC/m^2', &
+            avgflag='A', long_name='total soil organic matter carbon to 1 meter depth', &
+            ptr_col=this%totsomc_1m_col, c2l_scale_type='urbanf', l2g_scale_type='veg_li')
+       call hist_addfld1d (fname='TOTSOMC_1m_MI', units='gC/m^2', &
+            avgflag='A', long_name='total soil organic matter carbon to 1 meter depth', &
+            ptr_col=this%totsomc_1m_col, c2l_scale_type='urbanf', l2g_scale_type='veg_mi')
+       call hist_addfld1d (fname='TOTSOMC_1m_HI', units='gC/m^2', &
+            avgflag='A', long_name='total soil organic matter carbon to 1 meter depth', &
+            ptr_col=this%totsomc_1m_col, c2l_scale_type='urbanf', l2g_scale_type='veg_hi')
+!KSA2019 End
+
        end if
 
        this%ctrunc_col(begc:endc) = spval

@@ -548,6 +548,20 @@ contains
     call hist_addfld1d (fname='FSNO',  units='unitless',  &
          avgflag='A', long_name='fraction of ground covered by snow', &
          ptr_col=this%frac_sno_col, c2l_scale_type='urbanf')
+!KSA2019 Start
+    call hist_addfld1d (fname='FSNO_NI',  units='unitless',  &
+         avgflag='A', long_name='fraction of ground covered by snow', &
+         ptr_col=this%frac_sno_col, c2l_scale_type='urbanf', l2g_scale_type='veg_ni')
+    call hist_addfld1d (fname='FSNO_LI',  units='unitless',  &
+         avgflag='A', long_name='fraction of ground covered by snow', &
+         ptr_col=this%frac_sno_col, c2l_scale_type='urbanf', l2g_scale_type='veg_li')
+    call hist_addfld1d (fname='FSNO_MI',  units='unitless',  &
+         avgflag='A', long_name='fraction of ground covered by snow', &
+         ptr_col=this%frac_sno_col, c2l_scale_type='urbanf', l2g_scale_type='veg_mi')
+    call hist_addfld1d (fname='FSNO_HI',  units='unitless',  &
+         avgflag='A', long_name='fraction of ground covered by snow', &
+         ptr_col=this%frac_sno_col, c2l_scale_type='urbanf', l2g_scale_type='veg_hi')
+!KSA2019 End
 
     call hist_addfld1d (fname='FSNO_ICE',  units='unitless',  &
          avgflag='A', long_name='fraction of ground covered by snow (ice landunits only)', &
@@ -618,6 +632,22 @@ contains
     call hist_addfld1d (fname='SNOWDP',  units='m',  &
          avgflag='A', long_name='gridcell mean snow height', &
          ptr_col=this%snowdp_col, c2l_scale_type='urbanf')
+
+!KSA2019 Start
+    call hist_addfld1d (fname='SNOWDP_NI',  units='m',  &
+         avgflag='A', long_name='gridcell mean snow height', &
+         ptr_col=this%snowdp_col, c2l_scale_type='urbanf', l2g_scale_type='veg_ni')
+    call hist_addfld1d (fname='SNOWDP_LI',  units='m',  &
+         avgflag='A', long_name='gridcell mean snow height', &
+         ptr_col=this%snowdp_col, c2l_scale_type='urbanf', l2g_scale_type='veg_li')
+    call hist_addfld1d (fname='SNOWDP_MI',  units='m',  &
+         avgflag='A', long_name='gridcell mean snow height', &
+         ptr_col=this%snowdp_col, c2l_scale_type='urbanf', l2g_scale_type='veg_mi')
+    call hist_addfld1d (fname='SNOWDP_HI',  units='m',  &
+         avgflag='A', long_name='gridcell mean snow height', &
+         ptr_col=this%snowdp_col, c2l_scale_type='urbanf', l2g_scale_type='veg_hi')
+!KSA2019 End
+
 
     this%snowliq_col(begc:endc) = spval
     call hist_addfld1d (fname='SNOWLIQ',  units='kg/m2',  &
@@ -741,6 +771,19 @@ contains
     call hist_addfld1d (fname='EXICE_MELT',  units='m', &
          avgflag='A', long_name='melting of excess soil ice (vegetated landunits only)', &
          ptr_col=this%exice_melt, l2g_scale_type='veg')
+
+    call hist_addfld1d (fname='EXICE_MELT_NI',  units='m', &
+         avgflag='A', long_name='melting of excess soil ice (vegetated landunits only)', &
+         ptr_col=this%exice_melt, l2g_scale_type='veg_ni')
+    call hist_addfld1d (fname='EXICE_MELT_LI',  units='m', &
+         avgflag='A', long_name='melting of excess soil ice (vegetated landunits only)', &
+         ptr_col=this%exice_melt, l2g_scale_type='veg_li')
+    call hist_addfld1d (fname='EXICE_MELT_MI',  units='m', &
+         avgflag='A', long_name='melting of excess soil ice (vegetated landunits only)', &
+         ptr_col=this%exice_melt, l2g_scale_type='veg_mi')
+    call hist_addfld1d (fname='EXICE_MELT_HI',  units='m', &
+         avgflag='A', long_name='melting of excess soil ice (vegetated landunits only)', &
+         ptr_col=this%exice_melt, l2g_scale_type='veg_hi')
 
     this%micro_sigma_ex(begc:endc) = spval
     call hist_addfld1d (fname='MICRO_SIGMA_EX',  units='m', &
@@ -1013,27 +1056,35 @@ contains
                   this%init_exice(c,j) = this%excess_ice_col(c,j)
                end do
 			else if (lun%itype(l) == istsoil_mi) then
-			   do j = 1, nlevs
-                  if (col%zi(c,j) >= 1._r8 .and. col%zi(c,j) <= 4._r8) then
+  	   do j = 10, 13
+!  	   do j = 1, nlevs
+!                  if (col%zi(c,j) >= 1.0_r8 .and. col%zi(c,j) <= 2.8_r8) then
 !                  if (col%zi(c,j) <= 4._r8) then
-                     this%excess_ice_col(c,j) = col%dz(c,j)*denice*0.25_r8   ! medium excess ice (15% and tunable)	
-                  else
-                     this%excess_ice_col(c,j) = 0.0_r8
-                  endif
+                     this%excess_ice_col(c,j) = (col%dz(c,j)+0.02)*denice*1.0_r8   ! medium excess ice (50% and tunable)	
+!                  else
+!                     this%excess_ice_col(c,j) = 0.0_r8
+!                  endif
                   this%init_exice(c,j) = 0.0_r8
                   this%init_exice(c,j) = this%excess_ice_col(c,j)
                end do
 	       	else if (lun%itype(l) == istsoil_hi) then
-		 do j = 1, nlevs   	 
-                  if (col%zi(c,j) >= 1._r8 .and. col%zi(c,j) <= 4._r8) then
+ 	   do j = 6, 10
+!		 do j = 1, nlevs   	 
+!                  if (col%zi(c,j) >= 0.6_r8 .and. col%zi(c,j) <= 2.8_r8) then
 !                  if (col%zi(c,j) <= 4._r8) then
-                     this%excess_ice_col(c,j) = col%dz(c,j)*denice*0.5_r8    !high excess ice (25% and tunable)
-                  else
-                     this%excess_ice_col(c,j) = 0.0_r8
-                  endif
+                     this%excess_ice_col(c,j) = col%dz(c,j)*denice*1.5583_r8    !high excess ice (50% and tunable)
+!                  else
+!                     this%excess_ice_col(c,j) = 0.0_r8
+!                  endif
                   this%init_exice(c,j) = 0.0_r8
                   this%init_exice(c,j) = this%excess_ice_col(c,j)
-               	 end do
+           end do	
+	   !The following is to add more exice in layer 7 and remove it from lev 6. 
+	   !Currentlly very messy, but useful for sensitivity test. KSA2019 TODO!!!	       	   
+           this%excess_ice_col(c,7) = this%excess_ice_col(c,7)+this%excess_ice_col(c,6)+0.08*denice
+	   this%excess_ice_col(c,6) = 0.0_r8
+	   this%init_exice(c,6) = this%excess_ice_col(c,6)
+	   this%init_exice(c,7) = this%excess_ice_col(c,7)
 		else 
 		    this%init_exice(c,j) = 0.0_r8
                 this%init_exice(c,j) = this%excess_ice_col(c,j)

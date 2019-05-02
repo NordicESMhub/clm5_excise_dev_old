@@ -428,6 +428,21 @@ contains
          avgflag='A', long_name='surface water converted to ice', &
          ptr_col=this%qflx_h2osfc_to_ice_col) !KSA2019 made active
 
+!KSA2019 Start
+    call hist_addfld1d (fname='QH2OSFC_TO_ICE_NI',  units='mm/s',  &
+         avgflag='A', long_name='surface water converted to ice', &
+         ptr_col=this%qflx_h2osfc_to_ice_col, c2l_scale_type='urbanf', l2g_scale_type='veg_ni')
+    call hist_addfld1d (fname='QH2OSFC_TO_ICE_LI',  units='mm/s',  &
+         avgflag='A', long_name='surface water converted to ice', &
+         ptr_col=this%qflx_h2osfc_to_ice_col, c2l_scale_type='urbanf', l2g_scale_type='veg_li')
+    call hist_addfld1d (fname='QH2OSFC_TO_ICE_MI',  units='mm/s',  &
+         avgflag='A', long_name='surface water converted to ice', &
+         ptr_col=this%qflx_h2osfc_to_ice_col, c2l_scale_type='urbanf', l2g_scale_type='veg_mi')
+    call hist_addfld1d (fname='QH2OSFC_TO_ICE_HI',  units='mm/s',  &
+         avgflag='A', long_name='surface water converted to ice', &
+         ptr_col=this%qflx_h2osfc_to_ice_col, c2l_scale_type='urbanf', l2g_scale_type='veg_hi')
+!KSA2019 End
+
     this%qflx_prec_intr_patch(begp:endp) = spval
     call hist_addfld1d (fname='QINTR', units='mm/s',  &
          avgflag='A', long_name='interception', &
