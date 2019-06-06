@@ -153,6 +153,15 @@ contains
           call hist_addfld2d (fname='SOILC_vr', units='gC/m^3',  type2d='levsoi', &
                avgflag='A', long_name='SOIL C (vertically resolved)', &
                ptr_col=this%decomp_soilc_vr_col)
+          call hist_addfld2d (fname='SOILC_vr_NI', units='gC/m^3',  type2d='levsoi', &
+               avgflag='A', long_name='SOIL C (vertically resolved)', &
+               ptr_col=this%decomp_soilc_vr_col, c2l_scale_type='urbanf', l2g_scale_type='veg_ni')
+          call hist_addfld2d (fname='SOILC_vr_MI', units='gC/m^3',  type2d='levsoi', &
+               avgflag='A', long_name='SOIL C (vertically resolved)', &
+               ptr_col=this%decomp_soilc_vr_col, c2l_scale_type='urbanf', l2g_scale_type='veg_mi')
+          call hist_addfld2d (fname='SOILC_vr_HI', units='gC/m^3',  type2d='levsoi', &
+               avgflag='A', long_name='SOIL C (vertically resolved)', &
+               ptr_col=this%decomp_soilc_vr_col, c2l_scale_type='urbanf', l2g_scale_type='veg_hi')
        end if
 
        this%decomp_cpools_col(begc:endc,:) = spval
