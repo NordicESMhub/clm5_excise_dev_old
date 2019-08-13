@@ -267,11 +267,23 @@ contains
             ptr_col=this%soilpsi_col, default='inactive')
     end if
 
+    this%csol_col(begc:endc,1:nlevgrnd) = spval 
+    data2dptr => this%csol_col(:,1:nlevgrnd)
+    call hist_addfld2d (fname='SOIL_HC', units='J/m**3/Kelvin', type2d='levgrnd', &
+         avgflag='A', long_name='Heat capacity', &
+         ptr_col=this%csol_col, set_spec=spval, l2g_scale_type='veg')
+ 
     this%thk_col(begc:endc,-nlevsno+1:0) = spval
     data2dptr => this%thk_col(:,-nlevsno+1:0)
     call hist_addfld2d (fname='SNO_TK', units='W/m-K', type2d='levsno', &
          avgflag='A', long_name='Thermal conductivity', &
-         ptr_col=data2dptr, no_snow_behavior=no_snow_normal, default='inactive')
+         ptr_col=data2dptr, no_snow_behavior=no_snow_normal)  !KSA2019: made active
+
+    this%thk_col(begc:endc,1:nlevgrnd) = spval
+    data2dptr => this%thk_col(:,1:nlevgrnd)
+    call hist_addfld2d (fname='SOIL_TK', units='W/m-K', type2d='levgrnd', &
+         avgflag='A', long_name='Thermal conductivity', &
+         ptr_col=data2dptr, set_spec=spval, l2g_scale_type='veg')
 
     call hist_addfld2d (fname='SNO_TK_ICE', units='W/m-K', type2d='levsno', &
          avgflag='A', long_name='Thermal conductivity (ice landunits only)', &
@@ -281,7 +293,7 @@ contains
     this%hk_l_col(begc:endc,:) = spval
     call hist_addfld2d (fname='HK',  units='mm/s', type2d='levgrnd',  &
          avgflag='A', long_name='hydraulic conductivity (vegetated landunits only)', &
-         ptr_col=this%hk_l_col, set_spec=spval, l2g_scale_type='veg', default='inactive')
+         ptr_col=this%hk_l_col, set_spec=spval, l2g_scale_type='veg')
 
     this%soilalpha_col(begc:endc) = spval
     call hist_addfld1d (fname='SoilAlpha',  units='unitless',  &

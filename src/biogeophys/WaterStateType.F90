@@ -1046,7 +1046,7 @@ contains
             if (lun%itype(l) == istsoil_li) then
                nlevs = nlevgrnd
                do j = 1, nlevs
-                  if (col%zi(c,j) >= 0._r8 .and. col%zi(c,j) <= 2.0001_r8) then
+                  if (col%zi(c,j) >= 0.4001_r8 .and. col%zi(c,j) <= 2.0001_r8) then
 !                  if (col%zi(c,j) <= 4._r8) then
 !                     this%excess_ice_col(c,j) = col%dz(c,j)*denice*0.01_r8    !low excess ice (~1% and tunable)
                      this%excess_ice_col(c,j) = col%dz(c,j)*denice*2.0_r8    !high excess ice. Equal to Hi, but without lat. fluxes.
@@ -1062,7 +1062,7 @@ contains
 !                  if (col%zi(c,j) <= 4._r8) then
                   if (j == nlevs) then
 !                     this%excess_ice_col(c,j) = (col%dz(c,j))*denice*1.0_r8   ! medium excess ice (50% and tunable)	
-                     this%excess_ice_col(c,j) = 2.8_r8*denice		       ! fixed amount of exice in bottom layer.
+                     this%excess_ice_col(c,j) = 2.65_r8*denice		       ! fixed amount of exice in bottom layer.
                   else
                      this%excess_ice_col(c,j) = 0.0_r8
                   endif
@@ -1071,7 +1071,7 @@ contains
                end do
 	       	else if (lun%itype(l) == istsoil_hi) then
   	   do j = 1, nlevs   	 
-                  if (col%zi(c,j) >= 0._r8 .and. col%zi(c,j) <= 2.0001_r8) then
+                  if (col%zi(c,j) >= 0.4001_r8 .and. col%zi(c,j) <= 2.0001_r8) then
 !                  if (col%zi(c,j) <= 4._r8) then
                      this%excess_ice_col(c,j) = col%dz(c,j)*denice*2.0_r8    !high excess ice (67% and tunable)
                   else
