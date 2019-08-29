@@ -182,6 +182,20 @@ contains
     call hist_addfld1d (fname='FSAT',  units='unitless',  &
          avgflag='A', long_name='fractional area with water table at surface', &
          ptr_col=this%fsat_col, l2g_scale_type='veg')
+!KSA2019 Start
+    call hist_addfld1d (fname='FSAT_NI',  units='unitless',  &
+         avgflag='A', long_name='fractional area with water table at surface', &
+         ptr_col=this%fsat_col, l2g_scale_type='veg_ni')
+    call hist_addfld1d (fname='FSAT_LI',  units='unitless',  &
+         avgflag='A', long_name='fractional area with water table at surface', &
+         ptr_col=this%fsat_col, l2g_scale_type='veg_li')
+    call hist_addfld1d (fname='FSAT_MI',  units='unitless',  &
+         avgflag='A', long_name='fractional area with water table at surface', &
+         ptr_col=this%fsat_col, l2g_scale_type='veg_mi')
+    call hist_addfld1d (fname='FSAT_HI',  units='unitless',  &
+         avgflag='A', long_name='fractional area with water table at surface', &
+         ptr_col=this%fsat_col, l2g_scale_type='veg_hi')
+!KSA2019 End
 
     this%num_substeps_col(begc:endc) = spval
     call hist_addfld1d (fname='NSUBSTEPS',  units='unitless',  &

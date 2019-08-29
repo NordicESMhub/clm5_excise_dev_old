@@ -393,6 +393,38 @@ contains
          avgflag='A', long_name='fractional inundated area of vegetated columns', &
          ptr_col=this%finundated_col, l2g_scale_type='veg')
 
+!KSA2019Start
+    call hist_addfld1d (fname='FINUNDATED_NI', units='unitless', &
+         avgflag='A', long_name='fractional inundated area of NI columns', &
+         ptr_col=this%finundated_col, l2g_scale_type='veg_ni')
+    call hist_addfld1d (fname='FINUNDATED_LI', units='unitless', &
+         avgflag='A', long_name='fractional inundated area of LI columns', &
+         ptr_col=this%finundated_col, l2g_scale_type='veg_li')
+    call hist_addfld1d (fname='FINUNDATED_MI', units='unitless', &
+         avgflag='A', long_name='fractional inundated area of MI columns', &
+         ptr_col=this%finundated_col, l2g_scale_type='veg_mi')
+    call hist_addfld1d (fname='FINUNDATED_HI', units='unitless', &
+         avgflag='A', long_name='fractional inundated area of HI columns', &
+         ptr_col=this%finundated_col, l2g_scale_type='veg_hi')
+!KSA2019End
+
+
+!KSA2019Start
+    this%ch4_surf_flux_tot_col = spval
+    call hist_addfld1d (fname='FCH4_NI', units='kgC/m2/s', &
+         avgflag='A', long_name='NI unit surface CH4 flux to atmosphere (+ to atm)', &
+         ptr_col=this%ch4_surf_flux_tot_col, l2g_scale_type='veg_ni')
+    call hist_addfld1d (fname='FCH4_LI', units='kgC/m2/s', &
+         avgflag='A', long_name='LI unit surface CH4 flux to atmosphere (+ to atm)', &
+         ptr_col=this%ch4_surf_flux_tot_col, l2g_scale_type='veg_li')
+    call hist_addfld1d (fname='FCH4_MI', units='kgC/m2/s', &
+         avgflag='A', long_name='MI unit surface CH4 flux to atmosphere (+ to atm)', &
+         ptr_col=this%ch4_surf_flux_tot_col, l2g_scale_type='veg_mi')
+    call hist_addfld1d (fname='FCH4_HI', units='kgC/m2/s', &
+         avgflag='A', long_name='HI unit surface CH4 flux to atmosphere (+ to atm)', &
+         ptr_col=this%ch4_surf_flux_tot_col, l2g_scale_type='veg_hi')
+!KSA2019End
+
     this%finundated_lag_col(begc:endc) = spval
     ! Using l2g_scale_type='veg' to exclude values in special landunits, which can change
     ! from dynamic column adjustments (also want to exclude lakes here, for which

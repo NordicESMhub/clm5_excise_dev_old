@@ -309,8 +309,8 @@ contains
     call hist_addfld1d(fname='FCO2', units='kgCO2/m2/s', &
          avgflag='A', &
          long_name='CO2 flux to atmosphere (+ to atm)', &
-         ptr_lnd=this%net_carbon_exchange_grc, &
-         default='inactive')
+         ptr_lnd=this%net_carbon_exchange_grc)!, & 
+!         default='inactive')  !KSA2019 commented out inactive
 
     if (use_lch4) then
        this%flux_ch4_grc(begg:endg) = 0._r8
