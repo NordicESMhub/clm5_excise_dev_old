@@ -184,11 +184,35 @@ contains
     call hist_addfld1d (fname='TLAI', units='m^2/m^2', &
          avgflag='A', long_name='total projected leaf area index', &
          ptr_patch=this%tlai_patch)
+    call hist_addfld1d (fname='TLAI_NI', units='m^2/m^2', &
+         avgflag='A', long_name='total projected leaf area index', &
+         ptr_patch=this%tlai_patch, l2g_scale_type='veg_ni')
+    call hist_addfld1d (fname='TLAI_LI', units='m^2/m^2', &
+         avgflag='A', long_name='total projected leaf area index', &
+         ptr_patch=this%tlai_patch, l2g_scale_type='veg_li')
+    call hist_addfld1d (fname='TLAI_MI', units='m^2/m^2', &
+         avgflag='A', long_name='total projected leaf area index', &
+         ptr_patch=this%tlai_patch, l2g_scale_type='veg_mi')
+    call hist_addfld1d (fname='TLAI_HI', units='m^2/m^2', &
+         avgflag='A', long_name='total projected leaf area index', &
+         ptr_patch=this%tlai_patch, l2g_scale_type='veg_hi')
 
     this%tsai_patch(begp:endp) = spval
     call hist_addfld1d (fname='TSAI', units='m^2/m^2', &
          avgflag='A', long_name='total projected stem area index', &
          ptr_patch=this%tsai_patch)
+    call hist_addfld1d (fname='TSAI_NI', units='m^2/m^2', &
+         avgflag='A', long_name='total projected stem area index', &
+         ptr_patch=this%tsai_patch, l2g_scale_type='veg_ni')
+    call hist_addfld1d (fname='TSAI_LI', units='m^2/m^2', &
+         avgflag='A', long_name='total projected stem area index', &
+         ptr_patch=this%tsai_patch, l2g_scale_type='veg_li')
+    call hist_addfld1d (fname='TSAI_MI', units='m^2/m^2', &
+         avgflag='A', long_name='total projected stem area index', &
+         ptr_patch=this%tsai_patch, l2g_scale_type='veg_mi')
+    call hist_addfld1d (fname='TSAI_HI', units='m^2/m^2', &
+         avgflag='A', long_name='total projected stem area index', &
+         ptr_patch=this%tsai_patch, l2g_scale_type='veg_hi')
 
     this%laisun_patch(begp:endp) = spval
     call hist_addfld1d (fname='LAISUN', units='m^2/m^2', &
