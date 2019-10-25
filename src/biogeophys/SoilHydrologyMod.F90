@@ -1689,6 +1689,7 @@ contains
      use column_varcon    , only : icol_roof, icol_road_imperv, icol_road_perv
      use abortutils       , only : endrun
      use landunit_varcon  , only : istsoil_mi, istsoil_hi
+     use subgridMod       , only : DISTL,LENTL,A_mi,A_hi
      !
      ! !ARGUMENTS:
      type(bounds_type)        , intent(in)    :: bounds               
@@ -1723,7 +1724,7 @@ contains
      real(r8) :: zwt_mi,zwt_hi,frz_mi,frz_hi           !KSA2019. For coupled tiles
      real(r8) :: q_perch_mi,q_perch_hi                 !KSA2019. For coupled tiles     
      real(r8) :: zwtex_mi,zwtex_hi                     !KSA2019. For coupled tiles
-     real(r8) :: DISTL,LENTL,A_mi,A_hi                 !KSA2019. For coupled tiles
+     real(r8) :: frzex_mi,frzex_hi                   !KSA2019. For coupled tiles
      !-----------------------------------------------------------------------
 
      associate(                                                            & 
@@ -1750,12 +1751,6 @@ contains
 
          )
 
-       !Define values for coupled tiles (to be moved to namelist or input file) KSA2019
-       DISTL = 4.27_r8
-       LENTL = 22.2_r8
-       A_mi = 39.3_r8
-       A_hi = 39.3_r8
-
        ! Get time step
 
        dtime = get_step_size()
@@ -1781,7 +1776,6 @@ contains
 
           if ((frost_table(c)  > zwt_perched(c)) .and. origflag == 0 &
                .and. lun%itype(l) /= istsoil_mi .and. lun%itype(l) /= istsoil_hi ) then !KSA2019
-!             write(iulog,*) 'In original perched lateral flux code, lun%itype(l)=', lun%itype(l) !KSA2019
 
              !  specify maximum drainage rate
              q_perch_max = 1.e-5_r8 * sin(col%topo_slope(c) * (rpi/180._r8))
@@ -1860,7 +1854,6 @@ contains
           l = col%landunit(c)
           
           if (lun%itype(l) == istsoil_mi .or. lun%itype(l) == istsoil_hi) then
-!             write(iulog,*) 'In NEW coupled perched lateral flux code part 1, lun%itype(l)=', lun%itype(l) !KSA201
 
              ! calculate frost table and perched water table locations
              do k=1, nlevsoi
@@ -1882,6 +1875,7 @@ contains
              if (lun%itype(l) == istsoil_mi) then
                 zwt_mi = zwt_perched(c)
                 frz_mi = frost_table(c)
+                frzex_mi = frz_mi - sum(excess_ice(c,:)) / denice !Zfrz when accounting for exice
                 zwtex_mi = zwt_mi - sum(excess_ice(c,:)) / denice !WT when accounting for exice
                 do k = k_perch, k_frz
                    imped=10._r8**(-e_ice*(0.5_r8*(icefrac(c,k)+icefrac(c,min(nlevsoi, k+1)))))
@@ -1892,6 +1886,7 @@ contains
              elseif (lun%itype(l) == istsoil_hi) then
                 zwt_hi = zwt_perched(c)
                 frz_hi = frost_table(c)
+                frzex_hi = frz_hi - sum(excess_ice(c,:)) / denice !Zfrz when accounting for exice
                 zwtex_hi = zwt_hi - sum(excess_ice(c,:)) / denice !WT when accounting for exice
                 do k = k_perch, k_frz
                    imped=10._r8**(-e_ice*(0.5_r8*(icefrac(c,k)+icefrac(c,min(nlevsoi, k+1)))))
@@ -1909,7 +1904,6 @@ contains
           l = col%landunit(c)
           
           if (lun%itype(l) == istsoil_mi .or. lun%itype(l) == istsoil_hi) then
-!             write(iulog,*) 'In NEW coupled perched lateral flux code part 2, lun%itype(l)=', lun%itype(l) !KSA201
              if (lun%itype(l) == istsoil_mi) then
                 zwt_perched(c) = zwt_mi
              else
@@ -1917,25 +1911,23 @@ contains
              end if
 
              !Calculate lateral water flux based on both 
-             if ( ( zwtex_mi < zwtex_hi ) .and. frz_mi > zwt_mi) then !WT in mi higher than in hi, and higher than frozt table in mi
-                q_perch_max = ( zwtex_hi - zwtex_mi ) / DISTL  !Slope
+             if ( ( zwtex_mi < zwtex_hi ) .and. frzex_mi > zwtex_mi) then !WT in mi higher than in hi, and higher than frozt table in mi
+                !Use q_perch_max to account for slope (between tiles), and contact area compared to surface area.               
+                q_perch_max = ( zwtex_hi - zwtex_mi ) / DISTL * LENTL * (max(min(frzex_mi,frzex_hi),0.0_r8) - zwtex_mi) / A_mi 
                 q_perch = q_perch_mi                
                 if (lun%itype(l) == istsoil_mi) then
-                   qflx_drain_perched(c) = q_perch_max * q_perch &
-                        *(frz_mi - zwt_mi)
+                   qflx_drain_perched(c) = q_perch_max * q_perch * (frzex_mi - zwtex_mi)
                 else  !Hi sees negative flux. I.e. gaining water.
-                   qflx_drain_perched(c) = - q_perch_max * q_perch &
-                        *(frz_mi - zwt_mi)
+                   qflx_drain_perched(c) = - q_perch_max * q_perch * (frzex_mi - zwtex_mi)
                 end if
-             elseif( zwtex_hi < zwtex_mi .and. frz_hi > zwt_hi) then !WT in hi higher than in mi, and higher than frozt table in hi
-                q_perch_max = ( zwtex_mi - zwtex_hi ) / DISTL
+             elseif( zwtex_hi < zwtex_mi .and. frzex_hi > zwtex_hi) then !WT in hi higher than in mi, and higher than frozt table in hi
+                !Use q_perch_max to account for slope (between tiles), and contact area compared to surface area.               
+                q_perch_max = ( zwtex_mi - zwtex_hi ) / DISTL * LENTL * (max(min(frzex_mi,frzex_hi),0.0_r8) - zwtex_hi) / A_hi 
                 q_perch = q_perch_hi
                 if (lun%itype(l) == istsoil_hi) then
-                   qflx_drain_perched(c) = q_perch_max * q_perch &
-                        *(frz_hi - zwt_hi)
+                   qflx_drain_perched(c) = q_perch_max * q_perch * (frzex_hi - zwtex_hi)
                 else  !Mi sees negative flux. I.e. gaining water.
-                   qflx_drain_perched(c) = - q_perch_max * q_perch &
-                        *(frz_hi - zwt_hi)
+                   qflx_drain_perched(c) = - q_perch_max * q_perch * (frzex_hi - zwtex_hi)
                 end if
              else !No lateral flux.
                 qflx_drain_perched(c) = 0.0_r8
@@ -1968,9 +1960,6 @@ contains
                 ! by residual amount for water balance
                 qflx_drain_perched(c) = qflx_drain_perched(c) + drainage_tot/dtime 
 
-!                write(iulog,*) 'End of new lat flux code. lun%itype(l)=', lun%itype(l), &
-!                     ' qflx_drain_perched(c)=', qflx_drain_perched(c), &
-!                     ' frz_mi, zwt_mi, frz_hi, zwt_hi:',  frz_mi, zwt_mi, frz_hi, zwt_hi         
              else
                 qflx_drain_perched(c) = 0._r8
              endif !k_frz > k_perch            

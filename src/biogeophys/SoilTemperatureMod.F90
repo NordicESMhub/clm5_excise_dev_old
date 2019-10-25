@@ -946,7 +946,7 @@ endif
     use clm_varcon       , only : denice
     use clm_varpar       , only : nlevsno, nlevgrnd
     use landunit_varcon  , only : istsoil_mi, istsoil_hi
-!    use clm_varctl       , only : iulog
+    use subgridMod       , only : DISTL,LENTL,A_mi,A_hi
     !
     ! !ARGUMENTS:
     type(bounds_type)      , intent(in)    :: bounds                         
@@ -963,7 +963,6 @@ endif
     real(r8)               , intent(in) :: dz2 (bounds%begc: ,-nlevsno+1: )    ! soil layer thicknesses, incl. excess ice thickness
     real(r8)               , intent(in) :: cv( bounds%begc: , -nlevsno+1: ) ! heat capacity [J/(m2 K)                              ] [col, lev]
     real(r8)               , intent(in) :: tk( bounds%begc: , -nlevsno+1: ) ! thermal conductivity at the layer interface [W/(m K) ] [col, lev]
-!    real(r8)               , intent(in) :: tk_h2osfc( bounds%begc: )        ! thermal conductivity of h2osfc [W/(m K)              ] [col]
     !
     ! !LOCAL VARIABL
     integer  :: fc,j,c,l                    !do loop index
@@ -973,7 +972,6 @@ endif
 
     real(r8) :: ziex (bounds%begc:bounds%endc,1:nlevgrnd )    ! soil intrface depths, incl. excess ice thickness. Ajusted to common reference height- 
     real(r8) :: dtime                       !land model time step (sec)
-    real(r8) :: DISTL,LENTL,A_mi,A_hi                 !KSA2019. For coupled tiles
     real(r8) :: dzhhf                       !KSA2019. overlap between layers in tile Hi and Mi
     real(r8) :: zexmi,zexhi                 !KSA2019. total excess ice thickness in mi and hi.
     real(r8) :: accdz                       !KSA2019. accumulated dz (should be same as overlaping soil columns)
@@ -991,18 +989,11 @@ endif
          t_soisno                => temperature_inst%t_soisno_col           , & ! Output: [real(r8) (:,:) ] soil temperature (Kelvin) 
          lateralheat             => energyflux_inst%eflx_lateralheat_col    , &
          thk                     => soilstate_inst%thk_col                 & ! Input: [real(r8) (:,:) ]  thermal conductivity of each layer  [W/m-K] 
-    !(...)    
          )
 			
        ! Get step size
 
        dtime = get_step_size()
-
-       !Define values for coupled tiles (to be moved to namelist or input file) KSA2019
-       DISTL = 4.27_r8
-       LENTL = 22.2_r8
-       A_mi = 39.3_r8
-       A_hi = 39.3_r8
 
        !Loop through columns and find numbers for interactive tiles.
        do fc = 1,num_nolakec
@@ -1020,14 +1011,12 @@ endif
        end do
 
        accdz = 0.0_r8
-!       hhf   = 0.0_r8
        acchhf = 0.0_r8
        jmi = 5 !Need to start at lev 5 now to avoid energy imbalance. TODO!
        jhi = 5
        loopnr = 1
        loopnrmax = nlevgrnd*2+1
        lateralheat(:,:) = 0.0_r8
-!       lateralheat(chi) = 0.0_r8
 
        !Loop through soil. Calculate HHF. Positive upwards. Z=0 is top of soil without excess ice. Z=-1m is 1m below the reference surface.      
        do while (jmi <= nlevgrnd .and. jhi <= nlevgrnd .and. loopnr < loopnrmax) !Do while both tile indexes are less than nlevgrnd
@@ -1052,10 +1041,6 @@ endif
              dhhf_mi = LENTL / A_mi * tkcomb * (t_soisno(chi,jhi) - t_soisno(cmi,jmi)) / DISTL * dzhhf 
              dhhf_hi = LENTL / A_hi * tkcomb * (t_soisno(cmi,jmi) - t_soisno(chi,jhi)) / DISTL * dzhhf            
 
-!             write (iulog,*) 'In LateralHeatFlux. jhi,jmi,dzhhf: ', jhi,jmi,dzhhf,ziex(cmi,jmi),ziex(chi,jhi),&
-!                  t_soisno(cmi,jmi),dhhf_mi * dtime / cv(cmi,jmi),t_soisno(chi,jhi),dhhf_hi * dtime / cv(chi,jhi),accdz
-!             write (iulog,*) 'In LateralHeatFlux2a: ', jmi, t_soisno(cmi,jmi), dhhf_mi, thk(cmi,jmi), cv(cmi,jmi)
-!             write (iulog,*) 'In LateralHeatFlux2b: ', jhi, t_soisno(chi,jhi), dhhf_hi, thk(chi,jhi), cv(chi,jhi)
              !     UPDATE TEMPERATURES (IGNORING PHASE CHANGE)
              t_soisno(cmi,jmi) = t_soisno(cmi,jmi) + dhhf_mi * dtime / cv(cmi,jmi)
              t_soisno(chi,jhi) = t_soisno(chi,jhi) + dhhf_hi * dtime / cv(chi,jhi)
@@ -1066,14 +1051,6 @@ endif
              
           ENDIF
 
-!          write (iulog,*) 'In LateralHeatFlux. jhi,jmi,dzhhf: ', jhi,jmi,dzhhf,ziex(cmi,jmi),ziex(chi,jhi),&
-!               t_soisno(cmi,jmi),dhhf_mi * dtime / cv(cmi,jmi),t_soisno(chi,jhi),dhhf_hi * dtime / cv(chi,jhi),accdz
-         
-
-       !Update accumulated values [J/M2]      
-!       ACCHHF(2) = ACCHHF(2) + HHF(2) * DT 
-!       ACCHHF(3) = ACCHHF(3) + HHF(3) * DT
-
           !update jmi or jhi and loopnr
           if (ziex(cmi,jmi) < ziex(chi,jhi)) then !largest depth in mi-tile
              jhi=jhi+1      !update jhi
@@ -1082,8 +1059,6 @@ endif
           end if
           loopnr = loopnr + 1 !safety loop index, to avoid eternal loop. 
        end do
-       
-!       write(iulog,*) 'At the end of LateralHeatFlux. Total lateralheat_mi, total depth:', sum(lateralheat(cmi,:)), accdz
        
        if (loopnr == loopnrmax) write (iulog,*) 'Error in lateral heat flux. Loopnr too large!!!'
     call t_stopf( 'LateralHeatFlux' )	

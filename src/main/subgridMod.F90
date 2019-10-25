@@ -1,3 +1,4 @@
+! -*- mode: f90; indent-tabs-mode: nil; f90-do-indent:3; f90-if-indent:3; f90-type-indent:3; f90-program-indent:2; f90-associate-indent:0; f90-continuation-indent:5  -*-
 module subgridMod
 
   !-----------------------------------------------------------------------
@@ -49,6 +50,13 @@ module subgridMod
   public :: subgrid_get_info_crop
   public :: crop_patch_exists ! returns true if the given crop patch should be created in memory
 
+  !geometry parameters for coupled tiles. TODO: move to more suitable location? KSA2019
+  real(r8), parameter, public :: DISTL = 4.27_r8
+  real(r8), parameter, public :: LENTL = 22.2_r8
+  real(r8), parameter, public :: A_mi = 39.3_r8 !Must match input data, checked in "atm2lndMod.F90"
+  real(r8), parameter, public :: A_hi = 39.3_r8
+
+
   ! !PRIVATE MEMBER FUNCTIONS:
 !lc  !KSA2019: not sure if this should be here?
   private :: subgrid_get_info_natveg
@@ -86,6 +94,7 @@ contains
     ! atm_topo is arbitrary for the sake of getting these counts. We don't have a true
     ! atm_topo value at the point of this call, so use 0.
     real(r8), parameter :: atm_topo = 0._r8
+
     !------------------------------------------------------------------------------
 
     npatches = 0

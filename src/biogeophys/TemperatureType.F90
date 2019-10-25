@@ -738,7 +738,7 @@ contains
                   end if
                end if
             else
-               this%t_soisno_col(c,1:nlevgrnd) = 274._r8
+               this%t_soisno_col(c,1:nlevgrnd) = 264._r8 !KSA2019 changes from 274 to 264.
 
             endif
          endif

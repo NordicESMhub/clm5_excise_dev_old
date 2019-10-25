@@ -448,6 +448,8 @@ contains
     ! !USES:
     use clm_varcon               , only : denice  
     use landunit_varcon          , only : istsoil_mi, istsoil_hi
+    use abortutils               , only : endrun
+    use subgridMod               , only : A_mi,A_hi
     !
     ! !ARGUMENTS:
 !    real(r8), intent(inout):: snow_new        ! [(mm water equivalent)/s]
@@ -463,8 +465,8 @@ contains
     real(r8) :: Rscale_hi    ! 
     real(r8) :: SD_mi        ! snow depth mi (m) 
     real(r8) :: SD_hi        ! snow depth hi (m)
-    real(r8) :: Pct_land_mi  ! 
-    real(r8) :: Pct_land_hi  !     
+    real(r8) :: Wgt_land_mi  ! 
+    real(r8) :: Wgt_land_hi  !     
 !    real(r8) :: dz2(bounds%begc:bounds%endc,-nlevsno+1:nlevgrnd)   ! used in computing excess_ice effects
 !    real(r8) :: z2(bounds%begc:bounds%endc,-nlevsno+1:nlevgrnd)    ! used in computing excess_ice effects
 !    real(r8) :: zi2(bounds%begc:bounds%endc,-nlevsno+0:nlevgrnd)   ! used in computing excess_ice effects
@@ -478,10 +480,6 @@ contains
          forc_snow_c             => atm2lnd_inst%forc_snow_downscaled_col   , & ! Output: [real(r8) (:)]  snow rate [mm/s]
          excess_ice              => waterstate_inst%excess_ice_col          , & ! Input:  [real(r8) (:)   ]  excess soil ice (kg/m2)
          snowdp                  => waterstate_inst%snowdp_col             , & ! Input:  [real(r8) (:)   ]  area-averaged snow height (m)
-!         snow_depth              => waterstate_inst%snow_depth_col          , & ! Input:  [real(r8) (:)   ]  snow height (m)                          
-
-!         qflx_h2osno_lateral     => %qflx_h2osno_lateral     , & ! Input:  [real(r8) (:)   ]  traffic sensible heat flux (W/m**2)           
-!         pct_landunit            => subgrid_weights_diagnostics%pct_landunit, &
          
          begc                    =>    bounds%begc                          , &
          endc                    =>    bounds%endc                            &
@@ -500,33 +498,49 @@ contains
           if (lun%itype(l) == istsoil_hi) then
              SD_hi = snowdp(c)  !Use area average snow depth!
              Z_hi  = sum(excess_ice(c,:))/denice + SD_hi
-             Pct_land_hi = lun%wtgcell(l) 
+             Wgt_land_hi = lun%wtgcell(l) 
           else if (lun%itype(l) == istsoil_mi) then
              SD_mi = snowdp(c)  !Use area average snow depth!
              Z_mi  = sum(excess_ice(c,:))/denice + SD_mi
-             Pct_land_mi = lun%wtgcell(l) 
+             Wgt_land_mi = lun%wtgcell(l) 
           end if
        end if
     end do
     DZhimi = Z_hi - Z_mi
 
+    !Check that area fractions correspond to input data: TODO move to more appropriate location?
+    if (ABS(A_mi/(A_mi+A_hi) - Wgt_land_mi/(Wgt_land_mi+Wgt_land_hi)) > 1.e-3_r8) then
+          write(iulog,*) 'In LateralSnowFlux: ', A_mi,Wgt_land_mi,A_hi,Wgt_land_hi,ABS(A_mi/(A_mi+A_hi) - Wgt_land_mi/(Wgt_land_mi+Wgt_land_hi))
+          call endrun('ERROR:: Area weights of tiles in input file and code does not match! In LateralSnowFlux.')
+    end if
+
+
     !Calculate scaling factor for hi and mi
     IF (min(SD_mi,SD_hi) < SD_lim .or. ABS(DZhimi) < DZ_lim) THEN !No redist if one tile has less snow than SDLIM or diff less than DZ_lim
        Rscale_mi = 1.0_r8
        Rscale_hi = 1.0_r8
-!       write(iulog,*) 'In LateralSnowFlux, path A', SD_mi, SD_hi, SD_lim, Z_mi, Z_hi, DZhimi
     ELSEIF ( Z_mi > Z_hi ) then !tile MI more than 5 cm higher than tile HI
        Rscale_mi = 0.0_r8
-       Rscale_hi = 1.0_r8 + Pct_land_mi / Pct_land_hi 
-!       write(iulog,*) 'In LateralSnowFlux, path B', SD_mi, SD_hi, SD_lim, Z_mi, Z_hi, DZhimi
-!TODO, KSA2019: include maximum scaling factor in case of very different areas!
-!       redistfact(I,3,J)=min(redistfact(I,3,J),10.0) !maximum redistfact=10.
+       Rscale_hi = 1.0_r8 + Wgt_land_mi / Wgt_land_hi 
+       IF (Rscale_hi > 10.0) then !Limiting redisttribution factor to 10 to avoid numerical issues for very different areas
+          Rscale_hi = 10.0_r8
+          Rscale_mi = (Wgt_land_mi / Wgt_land_hi - 9.0_r8 ) / (Wgt_land_mi / Wgt_land_hi)  
+       ENDIF
     ELSE                !tile MI more than 5 cm higher than tile HI
-       Rscale_mi = 1.0_r8 + Pct_land_hi / Pct_land_mi                  
+       Rscale_mi = 1.0_r8 + Wgt_land_hi / Wgt_land_mi                  
        Rscale_hi = 0.0_r8 
-!       write(iulog,*) 'In LateralSnowFlux, path C', SD_mi, SD_hi, SD_lim, Z_mi, Z_hi, DZhimi
-!       Rscale_mi = min(redistfact(I,2,J),10.0) !maximum redistfact=10.
+       IF (Rscale_mi > 10.0) then !Limiting redisttribution factor to 10 to avoid numerical issues for very different areas
+          Rscale_mi = 10.0_r8
+          Rscale_hi = (Wgt_land_hi / Wgt_land_mi - 9.0_r8 ) / (Wgt_land_hi / Wgt_land_mi)  
+       ENDIF
     ENDIF
+
+    !Check that area weighted scaling factors sum up to 1.
+    IF (ABS(Rscale_mi*Wgt_land_mi + Rscale_hi*Wgt_land_hi - (Wgt_land_mi + Wgt_land_hi)) > 1.e-6_r8) then
+       write(iulog,*) 'In LateralSnowFlux: ', Rscale_mi,Wgt_land_mi,Rscale_hi,Wgt_land_hi, &
+            ABS(Rscale_mi*Wgt_land_mi + Rscale_hi*Wgt_land_hi - (Wgt_land_mi + Wgt_land_hi))
+       call endrun('ERROR:: Scaling factors in LateralSnowFlux does not add up to 1.0')
+    end if
 
     !Scale solid precipitation
     do c = bounds%begc, bounds%endc
@@ -539,8 +553,6 @@ contains
           end if
        end if
     end do
-!    write(iulog,*) 'End of LateralSnowFlux, forc_snow_c=', forc_snow_c
-!    write(iulog,*) 'End of LateralSnowFlux, lun%wtgcell=', lun%wtgcell
     
     end associate
 
