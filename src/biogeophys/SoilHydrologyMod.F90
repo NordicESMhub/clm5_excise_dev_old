@@ -1913,7 +1913,7 @@ contains
              !Calculate lateral water flux based on both 
              if ( ( zwtex_mi < zwtex_hi ) .and. frzex_mi > zwtex_mi) then !WT in mi higher than in hi, and higher than frozt table in mi
                 !Use q_perch_max to account for slope (between tiles), and contact area compared to surface area.               
-                q_perch_max = ( zwtex_hi - zwtex_mi ) / DISTL * LENTL * (max(min(frzex_mi,frzex_hi),0.0_r8) - zwtex_mi) / A_mi 
+                q_perch_max = ( zwtex_hi - zwtex_mi ) / DISTL * LENTL * max(min(frzex_mi,frzex_hi) - zwtex_mi,0.0_r8) / A_mi 
                 q_perch = q_perch_mi                
                 if (lun%itype(l) == istsoil_mi) then
                    qflx_drain_perched(c) = q_perch_max * q_perch * (frzex_mi - zwtex_mi)
@@ -1922,7 +1922,7 @@ contains
                 end if
              elseif( zwtex_hi < zwtex_mi .and. frzex_hi > zwtex_hi) then !WT in hi higher than in mi, and higher than frozt table in hi
                 !Use q_perch_max to account for slope (between tiles), and contact area compared to surface area.               
-                q_perch_max = ( zwtex_mi - zwtex_hi ) / DISTL * LENTL * (max(min(frzex_mi,frzex_hi),0.0_r8) - zwtex_hi) / A_hi 
+                q_perch_max = ( zwtex_mi - zwtex_hi ) / DISTL * LENTL * max(min(frzex_mi,frzex_hi) - zwtex_hi,0.0_r8) / A_hi 
                 q_perch = q_perch_hi
                 if (lun%itype(l) == istsoil_hi) then
                    qflx_drain_perched(c) = q_perch_max * q_perch * (frzex_hi - zwtex_hi)

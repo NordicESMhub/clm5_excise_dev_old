@@ -1,3 +1,4 @@
+! -*- mode: f90; indent-tabs-mode: nil; f90-do-indent:3; f90-if-indent:3; f90-type-indent:3; f90-program-indent:2; f90-associate-indent:0; f90-continuation-indent:5  -*-
 module SoilWaterMovementMod
 
 #include "shr_assert.h"
@@ -1504,7 +1505,8 @@ contains
              call IceImpedance(icefrac(c,j), e_ice, imped(j) )
             else
              s1 = 0.5_r8 * (s2(j) + s2(j+1))
-             call IceImpedance(0.5_r8*(icefrac(c,j) + icefrac(c,j+1)), e_ice, imped(j) )
+             !call IceImpedance(0.5_r8*(icefrac(c,j) + icefrac(c,j+1)), e_ice, imped(j) )
+             call IceImpedance(max(icefrac(c,j),icefrac(c,j+1)), e_ice, imped(j) ) !KSA2019 test. Use Max instead of average icefraction
             endif
 
   ! impose constraints on relative saturation at the layer interface
