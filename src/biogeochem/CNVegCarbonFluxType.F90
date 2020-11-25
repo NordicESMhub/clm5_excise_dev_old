@@ -1529,6 +1529,21 @@ contains
              avgflag='A', long_name='gross primary production', &
              ptr_patch=this%gpp_patch)
 
+!KSA2020+++ added output
+        call hist_addfld1d (fname='GPP_NI', units='gC/m^2/s', &
+             avgflag='A', long_name='GPP in NI column', &
+             ptr_patch=this%gpp_patch, l2g_scale_type='veg_ni')
+         call hist_addfld1d (fname='GPP_LI', units='gC/m^2/s', &
+             avgflag='A', long_name='GPP in NI column', &
+             ptr_patch=this%gpp_patch, l2g_scale_type='veg_li')
+        call hist_addfld1d (fname='GPP_MI', units='gC/m^2/s', &
+             avgflag='A', long_name='GPP in NI column', &
+             ptr_patch=this%gpp_patch, l2g_scale_type='veg_mi')
+        call hist_addfld1d (fname='GPP_HI', units='gC/m^2/s', &
+             avgflag='A', long_name='GPP in NI column', &
+             ptr_patch=this%gpp_patch, l2g_scale_type='veg_hi')
+!KSA2020---
+
         this%rr_patch(begp:endp) = spval
         call hist_addfld1d (fname='RR', units='gC/m^2/s', &
              avgflag='A', long_name='root respiration (fine root MR + total root GR)', &
@@ -1553,6 +1568,21 @@ contains
         call hist_addfld1d (fname='NPP', units='gC/m^2/s', &
              avgflag='A', long_name='net primary production', &
              ptr_patch=this%npp_patch)
+
+!KSA2020+++ added output
+        call hist_addfld1d (fname='NPP_NI', units='gC/m^2/s', &
+             avgflag='A', long_name='NPP in NI column', &
+             ptr_patch=this%npp_patch, l2g_scale_type='veg_ni')
+         call hist_addfld1d (fname='NPP_LI', units='gC/m^2/s', &
+             avgflag='A', long_name='NPP in NI column', &
+             ptr_patch=this%npp_patch, l2g_scale_type='veg_li')
+        call hist_addfld1d (fname='NPP_MI', units='gC/m^2/s', &
+             avgflag='A', long_name='NPP in NI column', &
+             ptr_patch=this%npp_patch, l2g_scale_type='veg_mi')
+        call hist_addfld1d (fname='NPP_HI', units='gC/m^2/s', &
+             avgflag='A', long_name='NPP in NI column', &
+             ptr_patch=this%npp_patch, l2g_scale_type='veg_hi')
+!KSA2020---
 
         this%agnpp_patch(begp:endp) = spval
         call hist_addfld1d (fname='AGNPP', units='gC/m^2/s', &
@@ -2922,11 +2952,40 @@ contains
         call hist_addfld1d (fname='SR', units='gC/m^2/s', &
              avgflag='A', long_name='total soil respiration (HR + root resp)', &
              ptr_col=this%sr_col)
+!KSA2020+++ added output
+        call hist_addfld1d (fname='SR_NI', units='gC/m^2/s', &
+             avgflag='A', long_name='total soil respiration (HR + root resp)', &
+             ptr_col=this%sr_col, l2g_scale_type='veg_ni')
+        call hist_addfld1d (fname='SR_LI', units='gC/m^2/s', &
+             avgflag='A', long_name='total soil respiration (HR + root resp)', &
+             ptr_col=this%sr_col, l2g_scale_type='veg_li')
+        call hist_addfld1d (fname='SR_MI', units='gC/m^2/s', &
+             avgflag='A', long_name='total soil respiration (HR + root resp)', &
+             ptr_col=this%sr_col, l2g_scale_type='veg_mi')
+        call hist_addfld1d (fname='SR_HI', units='gC/m^2/s', &
+             avgflag='A', long_name='total soil respiration (HR + root resp)', &
+             ptr_col=this%sr_col, l2g_scale_type='veg_hi')
+!KSA2020---
+
 
         this%er_col(begc:endc) = spval
         call hist_addfld1d (fname='ER', units='gC/m^2/s', &
              avgflag='A', long_name='total ecosystem respiration, autotrophic + heterotrophic', &
              ptr_col=this%er_col)
+!KSA2020+++ added output
+        call hist_addfld1d (fname='ER_NI', units='gC/m^2/s', &
+             avgflag='A', long_name='total ecosystem respiration, autotrophic + heterotrophic', &
+             ptr_col=this%er_col, l2g_scale_type='veg_ni')
+        call hist_addfld1d (fname='ER_LI', units='gC/m^2/s', &
+             avgflag='A', long_name='total ecosystem respiration, autotrophic + heterotrophic', &
+             ptr_col=this%er_col, l2g_scale_type='veg_li')
+        call hist_addfld1d (fname='ER_MI', units='gC/m^2/s', &
+             avgflag='A', long_name='total ecosystem respiration, autotrophic + heterotrophic', &
+             ptr_col=this%er_col, l2g_scale_type='veg_mi')
+        call hist_addfld1d (fname='ER_HI', units='gC/m^2/s', &
+             avgflag='A', long_name='total ecosystem respiration, autotrophic + heterotrophic', &
+             ptr_col=this%er_col, l2g_scale_type='veg_hi')
+!KSA2020---
 
         this%litfire_col(begc:endc) = spval
         call hist_addfld1d (fname='LITFIRE', units='gC/m^2/s', &

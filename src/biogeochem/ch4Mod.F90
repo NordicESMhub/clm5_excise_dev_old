@@ -725,6 +725,20 @@ contains
          avgflag='A', long_name='depth of water table for methane production used in non-inundated area', &
          ptr_col=this%zwt_ch4_unsat_col)
 
+    call hist_addfld1d (fname='ZWT_CH4_UNSAT_NI', units='m',  &
+         avgflag='A', long_name='depth of water table for methane production used in non-inundated area', &
+         ptr_col=this%zwt_ch4_unsat_col, l2g_scale_type='veg_ni')
+    call hist_addfld1d (fname='ZWT_CH4_UNSAT_LI', units='m',  &
+         avgflag='A', long_name='depth of water table for methane production used in non-inundated area', &
+         ptr_col=this%zwt_ch4_unsat_col, l2g_scale_type='veg_li')
+    call hist_addfld1d (fname='ZWT_CH4_UNSAT_MI', units='m',  &
+         avgflag='A', long_name='depth of water table for methane production used in non-inundated area', &
+         ptr_col=this%zwt_ch4_unsat_col, l2g_scale_type='veg_mi')
+    call hist_addfld1d (fname='ZWT_CH4_UNSAT_HI', units='m',  &
+         avgflag='A', long_name='depth of water table for methane production used in non-inundated area', &
+         ptr_col=this%zwt_ch4_unsat_col, l2g_scale_type='veg_hi')
+
+
     this%qflx_surf_lag_col(begc:endc) = spval
     call hist_addfld1d (fname='QOVER_LAG', units='mm/s',  &
          avgflag='A', long_name='time-lagged surface runoff for soil columns', &
