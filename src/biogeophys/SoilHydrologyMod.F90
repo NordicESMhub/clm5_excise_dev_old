@@ -1877,8 +1877,9 @@ contains
                 frz_mi = frost_table(c)
                 frzex_mi = frz_mi - sum(excess_ice(c,:)) / denice !Zfrz when accounting for exice
                 zwtex_mi = zwt_mi - sum(excess_ice(c,:)) / denice !WT when accounting for exice
-                do k = k_perch, k_frz
-                   imped=10._r8**(-e_ice*(0.5_r8*(icefrac(c,k)+icefrac(c,min(nlevsoi, k+1)))))
+                do k = k_perch-1, k_frz  !KSA2020 added "-1" to allow drainage from partly sat. layer.
+                   !imped=10._r8**(-e_ice*(0.5_r8*(icefrac(c,k)+icefrac(c,min(nlevsoi, k+1)))))
+                   imped=10._r8**(-e_ice*(icefrac(c,k)))
                    q_perch = q_perch + imped*hksat(c,k)*dzmm(c,k)
                    wtsub = wtsub + dzmm(c,k)
                 end do
@@ -1888,8 +1889,9 @@ contains
                 frz_hi = frost_table(c)
                 frzex_hi = frz_hi - sum(excess_ice(c,:)) / denice !Zfrz when accounting for exice
                 zwtex_hi = zwt_hi - sum(excess_ice(c,:)) / denice !WT when accounting for exice
-                do k = k_perch, k_frz
-                   imped=10._r8**(-e_ice*(0.5_r8*(icefrac(c,k)+icefrac(c,min(nlevsoi, k+1)))))
+                do k = k_perch-1, k_frz  !KSA2020 added "-1" to allow drainage from partly sat. layer.
+                   !imped=10._r8**(-e_ice*(0.5_r8*(icefrac(c,k)+icefrac(c,min(nlevsoi, k+1)))))  !KSA2020 changed imped calculation!
+                   imped=10._r8**(-e_ice*(icefrac(c,k)))
                    q_perch = q_perch + imped*hksat(c,k)*dzmm(c,k)
                    wtsub = wtsub + dzmm(c,k)
                 end do

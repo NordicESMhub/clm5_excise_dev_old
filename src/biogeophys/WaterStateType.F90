@@ -1011,7 +1011,12 @@ contains
                end do
             endif
             do j = 1, nlevs
-               this%h2osoi_vol_col(c,j) = min(this%h2osoi_vol_col(c,j), watsat_col(c,j)*0.85_r8 )  !KSA2019 test to avoid problem with zwt vs zwt_perched
+               if (j < nbedrock - 1) then
+                  this%h2osoi_vol_col(c,j) = min(this%h2osoi_vol_col(c,j), watsat_col(c,j))  !KSA2019 test to avoid problem with zwt vs zwt_perched
+               else
+                  this%h2osoi_vol_col(c,j) = min(this%h2osoi_vol_col(c,j), watsat_col(c,j)*0.85_r8 )  !KSA2019 test to avoid problem with zwt vs zwt_perched
+               endif
+
                if (t_soisno_col(c,j) <= SHR_CONST_TKFRZ) then
                   this%h2osoi_ice_col(c,j) = col%dz(c,j)*denice*this%h2osoi_vol_col(c,j)
                   this%h2osoi_liq_col(c,j) = 0._r8
@@ -1046,7 +1051,7 @@ contains
             if (lun%itype(l) == istsoil_li) then
                nlevs = nlevgrnd
                do j = 1, nlevs
-                  if (col%zi(c,j) >= 1.001_r8 .and. col%zi(c,j) <= 2.0001_r8) then
+                  if (col%zi(c,j) >= 0.701_r8 .and. col%zi(c,j) <= 1.7001_r8) then
 !                  if (col%zi(c,j) <= 4._r8) then
 !                     this%excess_ice_col(c,j) = col%dz(c,j)*denice*0.01_r8    !low excess ice (~1% and tunable)
                      this%excess_ice_col(c,j) = col%dz(c,j)*denice*2.0_r8    !high excess ice. Equal to Hi, but without lat. fluxes.
@@ -1071,7 +1076,7 @@ contains
                end do
 	       	else if (lun%itype(l) == istsoil_hi) then
   	   do j = 1, nlevs   	 
-                  if (col%zi(c,j) >= 1.1001_r8 .and. col%zi(c,j) <= 2.0001_r8) then
+                  if (col%zi(c,j) >= 0.7001_r8 .and. col%zi(c,j) <= 1.7001_r8) then
 !                  if (col%zi(c,j) <= 4._r8) then
                      this%excess_ice_col(c,j) = col%dz(c,j)*denice*2.0_r8    !high excess ice (67% and tunable)
                   else
